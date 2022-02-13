@@ -4,7 +4,7 @@ import FilePath from './FilePaths';
 
 const SettingsPage = () => {
     return (
-        <Container sx={{ position: 'fixed', backgroundColor: '#272727', left: 0, minHeight: '100%' }} maxWidth={false}>
+        <Container sx={{ position: 'fixed', backgroundColor: '#272727', height: '100%', zIndex: '1' }} maxWidth={false}>
             <Typography variant="h2" textAlign="center" gutterBottom>
                 Settings
             </Typography>

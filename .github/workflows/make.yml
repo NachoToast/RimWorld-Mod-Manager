@@ -7,7 +7,7 @@ on: [push, pull_request]
 
 jobs:
     make:
-        name: Yarn
+        name: Make
         runs-on: windows-latest
 
         strategy:
@@ -22,5 +22,5 @@ jobs:
               with:
                   node-version: ${{ matrix.node-version }}
                   cache: 'yarn'
-            - run: yarn install --frozen-lockfile
+            - run: yarn install --frozen-lockfile --network-timeout 100000
             - run: yarn make

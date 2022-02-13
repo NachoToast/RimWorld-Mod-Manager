@@ -8,7 +8,7 @@ on: [push, pull_request]
 jobs:
     build_yarn:
         name: Yarn
-        runs-on: windows-latest
+        runs-on: ubuntu-latest
 
         strategy:
             matrix:
@@ -25,4 +25,3 @@ jobs:
             - run: yarn install --frozen-lockfile
             - run: yarn lint
             - run: yarn typecheck
-            - run: yarn make

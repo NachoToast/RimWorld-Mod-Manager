@@ -15,7 +15,7 @@ const SettingsButton = () => {
 
     return (
         <Tooltip title={<>{settingsOpen ? 'Close' : 'Open'} Settings</>}>
-            <Button sx={{ position: 'fixed', right: 0 }} onClick={handleClick}>
+            <Button sx={{ position: 'fixed', right: 0, zIndex: '1000' }} onClick={handleClick}>
                 <SettingsIcon fontSize="large" color={settingsOpen ? 'primary' : 'disabled'} />
             </Button>
         </Tooltip>

@@ -1,7 +1,8 @@
-import { Container, Grow, Typography } from '@mui/material';
+import { Container, Grid, Grow, Typography } from '@mui/material';
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { ModSource } from '../types/ModFiles';
+import ModLists from './components/ModLists/ModLists';
 import SettingsButton from './components/Settings/SettingsButton';
 import SettingsPage from './components/Settings/SettingsPage';
 import { getMods, getSettingsOpen, loadMods } from './redux/slices/main.slice';
@@ -21,13 +22,25 @@ const App = () => {
 
     return (
         <Container sx={{ backgroundColor: '#272727' }} maxWidth={false}>
-            {settingsOpen && <SettingsPage />}
             <SettingsButton />
+            {settingsOpen && <SettingsPage />}
             <Grow in>
-                <Typography variant="h2" textAlign="center">
+                <Typography variant="h2" textAlign="center" gutterBottom>
                     RimWorld Mod Manager
                 </Typography>
             </Grow>
+
+            <Grid container spacing={2}>
+                <Grid item xs={12} md={6} xl={4}>
+                    <ModLists />
+                </Grid>
+                <Grid item xs={12} md={6} xl={4} sx={{ border: 'solid 1px aquamarine' }}>
+                    <Typography>Preview</Typography>
+                </Grid>
+                <Grid item xs={12} xl={4} sx={{ flexGrow: 1, border: 'solid 1px pink' }}>
+                    <Typography>Active List</Typography>
+                </Grid>
+            </Grid>
         </Container>
     );
 };

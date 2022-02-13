@@ -3,7 +3,7 @@
 
 export type PackageId = string;
 
-export type ModSource = 'workshop' | 'local';
+export type ModSource = 'workshop' | 'local' | 'core';
 export type FilePath = ModSource | 'modlist';
 
 export interface ModDependency {
@@ -100,4 +100,9 @@ export interface WorkshopMod extends Mod<'workshop'> {
 export interface LocalMod extends Mod<'local'> {
     steamWorkshopURL: null;
     source: 'local';
+}
+
+export interface CoreMod extends Mod<'core'> {
+    steamWorkshopURL: null;
+    source: 'core';
 }

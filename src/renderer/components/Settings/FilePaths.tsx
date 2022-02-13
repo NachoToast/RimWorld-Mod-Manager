@@ -6,6 +6,7 @@ import ConstructionIcon from '@mui/icons-material/Construction';
 import FolderIcon from '@mui/icons-material/Folder';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import FolderOpenIcon from '@mui/icons-material/FolderOpen';
+import PublicIcon from '@mui/icons-material/Public';
 import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered';
 import { getFilePaths, setSettingsOpen, setFilePath } from '../../redux/slices/main.slice';
 import { FilePath } from '../../../types/ModFiles';
@@ -39,6 +40,8 @@ const PathDialogue = ({ type }: { type: FilePath }) => {
                 return ['Steam Workshop', <ConstructionIcon />];
             case 'modlist':
                 return ['Modlist Config', <FormatListNumberedIcon />];
+            case 'core':
+                return ['Core Mods', <PublicIcon />];
         }
     }, [type]);
 

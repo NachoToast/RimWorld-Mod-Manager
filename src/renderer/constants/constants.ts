@@ -4,10 +4,12 @@ export const storageKeys: { [K in FilePath]: string } = {
     workshop: 'workshopModsFilePath',
     local: 'localModsFilePath',
     modlist: 'modConfigFilePath',
+    core: 'coreModsFilePath',
 };
 
 export const pathDefaults: { [K in FilePath]: string } = {
     workshop: 'C:\\Program Files (x86)\\Steam\\steamapps\\workshop\\content\\294100',
     local: 'C:\\Program Files (x86)\\Steam\\steamapps\\common\\RimWorld\\Mods',
     modlist: '%appdata%\\..\\LocalLow\\Ludeon Studios\\RimWorld by Ludeon Studios\\Config\\ModsConfig.xml',
+    core: 'C:\\Program Files (x86)\\Steam\\steamapps\\common\\RimWorld\\Data',
 };

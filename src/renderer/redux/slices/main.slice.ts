@@ -33,16 +33,19 @@ export const initialState: State = {
         workshop: getFromStorage('workshop'),
         local: getFromStorage('local'),
         modlist: getFromStorage('modlist'),
+        core: getFromStorage('core'),
     },
     previousFilePaths: {
         workshop: getFromStorage('workshop'),
         local: getFromStorage('local'),
         modlist: getFromStorage('modlist'),
+        core: getFromStorage('core'),
     },
 
     mods: {
         local: undefined,
         workshop: undefined,
+        core: undefined,
     },
 
     currentModList: undefined,

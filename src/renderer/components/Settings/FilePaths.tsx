@@ -1,4 +1,4 @@
-import { Stack, Fade, Tooltip, Button, Typography, TextField, Zoom } from '@mui/material';
+import { Stack, Fade, Tooltip, Button, Typography, TextField, Slide } from '@mui/material';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { pathDefaults } from '../../constants/constants';
@@ -83,13 +83,13 @@ const PathDialogue = ({ type }: { type: FilePath }) => {
             />
             <Fade in={isHovered}>
                 <Stack direction="row-reverse">
-                    <Zoom in={canReset}>
+                    <Slide direction="left" in={canReset}>
                         <Tooltip title="Reset to Default">
                             <Button onClick={handleReset}>
                                 <RestartAltIcon color="error" />
                             </Button>
                         </Tooltip>
-                    </Zoom>
+                    </Slide>
                     <Tooltip title="Open in Folder">
                         <Button onClick={handleOpenInFolder}>
                             <FolderOpenIcon />

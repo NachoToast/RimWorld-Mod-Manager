@@ -43,7 +43,7 @@ const ModLists = () => {
                 <AccordionSummary expandIcon={<ExpandMore />}>
                     <Stack direction="row" alignItems="center" spacing={1}>
                         <ConstructionIcon />
-                        <span>Steam Workshop {numSteam}</span>
+                        <span>Steam Workshop ({numSteam})</span>
                     </Stack>
                 </AccordionSummary>
                 <AccordionDetails>
@@ -58,7 +58,7 @@ const ModLists = () => {
                 <AccordionSummary expandIcon={<ExpandMore />}>
                     <Stack direction="row" alignItems="center" spacing={1}>
                         <FolderIcon />
-                        <span>Local Files {numLocal}</span>
+                        <span>Local Files ({numLocal})</span>
                     </Stack>
                 </AccordionSummary>
                 <AccordionDetails>

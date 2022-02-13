@@ -1,4 +1,4 @@
-import { Mod, AboutXML, ByVersionMap, ModDependency, ModPaths } from '../../types/ModFiles';
+import { Mod, AboutXML, ByVersionMap, ModDependency, ModSource, ModList } from '../../types/ModFiles';
 import { readdirSync, readFileSync } from 'fs';
 import { join } from 'path';
 
@@ -12,9 +12,6 @@ interface LoadOperationMeta {
     /** Total number of folders and files found in specified directory (immediate-children only). */
     files: number;
     folders: number;
-    /** Valid mod folders have a basic structure of `/About/About.xml` (case insensitive). */
-    validModFolders: number;
-    validAboutFiles: number;
 
     missingAboutFolder: string[];
     missingAboutXML: string[];
@@ -24,13 +21,11 @@ interface LoadOperationMeta {
     errors: Error[];
 }
 
-export default function main(path: string, source: ModPaths): { mods: Mod[]; meta: LoadOperationMeta } {
-    const mods: Mod[] = [];
+function main<T extends ModSource>(path: string, source: ModSource): { mods: ModList<T>; meta: LoadOperationMeta } {
+    const mods: ModList<T> = {};
     const meta: LoadOperationMeta = {
         files: 0,
         folders: 0,
-        validModFolders: 0,
-        validAboutFiles: 0,
         missingAboutFolder: [],
         missingAboutXML: [],
         invalidXML: [],
@@ -57,13 +52,15 @@ export default function main(path: string, source: ModPaths): { mods: Mod[]; met
         if (rawObject === null) continue;
 
         // format data
-        const modData = formatRawData(folder, rawObject.ModMetaData, source, meta);
-        meta.validAboutFiles++;
-        mods.push(modData);
+        const modData = formatRawData<T>(folder, rawObject.ModMetaData, meta, source);
+
+        mods[modData.packageId] = modData;
     }
 
     return { mods, meta };
 }
+
+export default main;
 
 function getModInfo(filePath: string, name: string, meta: LoadOperationMeta): string | null {
     try {
@@ -89,7 +86,6 @@ function getModInfo(filePath: string, name: string, meta: LoadOperationMeta): st
 
         fullPath = join(fullPath, aboutFile);
         const modData = readFileSync(fullPath, 'utf-8');
-        meta.validModFolders++;
         return modData;
     } catch (error) {
         if (error instanceof Error) meta.errors.push(error);
@@ -190,7 +186,12 @@ function convert(document: Document, meta: LoadOperationMeta): Record<'ModMetaDa
     }
 }
 
-function formatRawData(folderName: string, rawData: AboutXML, source: ModPaths, meta: LoadOperationMeta): Mod {
+function formatRawData<T extends ModSource>(
+    folderName: string,
+    rawData: AboutXML,
+    meta: LoadOperationMeta,
+    source: ModSource,
+): Mod<T> {
     return {
         name: rawData.name || 'Unknown Mod',
         authors: rawData.author.split(','),
@@ -210,6 +211,7 @@ function formatRawData(folderName: string, rawData: AboutXML, source: ModPaths, 
         loadBefore: rawData?.loadBefore ? u2a(rawData.loadBefore) : [],
         descriptionsByVersion: validateVersionMap<string>(rawData.descriptionsByVersion),
         loadAfterByVersion: validateVersionMap<ModDependency>(rawData.loadAfterByVersion),
+        source,
     };
 }
 
@@ -248,8 +250,10 @@ function validateVersionMap<T>(a: ByVersionMap<T | undefined> | undefined): ByVe
     return output;
 }
 
-function validateDependenciesByVersion(a: AboutXML['modDependenciesByVersion']): Mod['modDependenciesByVersion'] {
-    const output: Mod['modDependenciesByVersion'] = {};
+function validateDependenciesByVersion<T extends ModSource>(
+    a: AboutXML['modDependenciesByVersion'],
+): Mod<T>['modDependenciesByVersion'] {
+    const output: Mod<T>['modDependenciesByVersion'] = {};
     if (!a) return output;
 
     const keys = Object.keys(a) as (keyof typeof a)[];

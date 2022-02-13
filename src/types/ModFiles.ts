@@ -3,8 +3,8 @@
 
 export type PackageId = string;
 
-export type ModPaths = 'workshop' | 'local';
-export type FilePaths = 'workshop' | 'local' | 'modlist';
+export type ModSource = 'workshop' | 'local';
+export type FilePath = ModSource | 'modlist';
 
 export interface ModDependency {
     packageId: PackageId;
@@ -18,6 +18,10 @@ export interface ByVersionMap<T> {
     'v1.1'?: T;
     'v1.2'?: T;
     'v1.3'?: T;
+}
+
+export interface ModList<T extends ModSource> {
+    [index: PackageId]: Mod<T>;
 }
 
 export interface AboutXML {
@@ -69,7 +73,7 @@ export interface AboutXML {
     loadAfterByVersion?: ByVersionMap<ModDependency>;
 }
 
-export interface Mod {
+export interface Mod<T extends ModSource> {
     name: string;
     authors: string[];
     packageId: PackageId;
@@ -83,6 +87,17 @@ export interface Mod {
     incompatibleWith: PackageId[];
     modDependenciesByVersion: ByVersionMap<ModDependency>;
     loadBefore: PackageId[];
-    descriptionsByVersion: ByVersionMap<Mod['description']>;
+    descriptionsByVersion: ByVersionMap<Mod<T>['description']>;
     loadAfterByVersion: ByVersionMap<ModDependency>;
+    source: ModSource;
+}
+
+export interface WorkshopMod extends Mod<'workshop'> {
+    steamWorkshopURL: URL;
+    source: 'workshop';
+}
+
+export interface LocalMod extends Mod<'local'> {
+    steamWorkshopURL: null;
+    source: 'local';
 }

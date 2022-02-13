@@ -8,10 +8,10 @@ import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered';
 import { getFilePaths, setSettingsOpen, setFilePath } from '../../redux/slices/main.slice';
-import { FilePaths } from '../../../types/ModFiles';
+import { FilePath } from '../../../types/ModFiles';
 import { Box } from '@mui/system';
 
-const PathDialogue = ({ type }: { type: FilePaths }) => {
+const PathDialogue = ({ type }: { type: FilePath }) => {
     const dispatch = useDispatch();
     const filePaths = useSelector(getFilePaths);
 
@@ -101,17 +101,17 @@ const PathDialogue = ({ type }: { type: FilePaths }) => {
     );
 };
 
-const FilePaths = () => {
+const FilePath = () => {
     const filePaths = useSelector(getFilePaths);
 
     return (
         <Stack spacing={2}>
             <Typography variant="h5">File Paths</Typography>
             {Object.keys(filePaths).map((key, i) => (
-                <PathDialogue type={key as FilePaths} key={i} />
+                <PathDialogue type={key as FilePath} key={i} />
             ))}
         </Stack>
     );
 };
 
-export default FilePaths;
+export default FilePath;

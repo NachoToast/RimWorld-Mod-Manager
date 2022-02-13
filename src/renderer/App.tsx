@@ -1,7 +1,7 @@
 import { Container, Grow, Typography } from '@mui/material';
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { ModPaths } from '../types/ModFiles';
+import { ModSource } from '../types/ModFiles';
 import SettingsButton from './components/Settings/SettingsButton';
 import SettingsPage from './components/Settings/SettingsPage';
 import { getMods, getSettingsOpen, loadMods } from './redux/slices/main.slice';
@@ -12,11 +12,9 @@ const App = () => {
     const mods = useSelector(getMods);
 
     useEffect(() => {
-        for (const key of Object.keys(mods)) {
-            const k = key as ModPaths;
-            if (mods[k] === undefined) {
-                console.log(`${k} not loaded, dispatching...`);
-                dispatch(loadMods(k));
+        for (const key of Object.keys(mods) as ModSource[]) {
+            if (mods[key] === undefined) {
+                dispatch(loadMods(key));
             }
         }
     }, [dispatch, mods]);

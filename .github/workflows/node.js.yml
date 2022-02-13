@@ -8,7 +8,7 @@ on: [push, pull_request]
 jobs:
     build_yarn:
         name: Yarn
-        runs-on: ubuntu-latest
+        runs-on: windows-latest
 
         strategy:
             matrix:
@@ -23,6 +23,6 @@ jobs:
                   node-version: ${{ matrix.node-version }}
                   cache: 'yarn'
             - run: yarn install --frozen-lockfile
-            - run: yarn make
             - run: yarn lint
             - run: yarn typecheck
+            - run: yarn make

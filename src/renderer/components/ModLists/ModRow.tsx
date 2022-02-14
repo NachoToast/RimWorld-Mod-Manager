@@ -31,7 +31,7 @@ const ModRow = (props: { index: number; style: React.CSSProperties; mod: Mod<Mod
             onMouseLeave={() => setIsHovered(false)}
             secondaryAction={
                 isHovered ? (
-                    <Tooltip title="Add To list" placement="left">
+                    <Tooltip title="Add to list" placement="left">
                         <IconButton onClick={handleAddToList}>
                             <AddIcon />
                         </IconButton>

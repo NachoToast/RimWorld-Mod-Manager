@@ -42,17 +42,18 @@ function main<T extends ModSource>(path: string, source: ModSource): { mods: Mod
 
     for (const folder of folders) {
         // verify mod file structure
-        const xmlData = getModInfo(path, folder, meta);
-        if (xmlData === null) continue;
+        const modInfo = getModInfo(path, folder, meta);
+        if (modInfo === null) continue;
+        const { aboutFileContents, previewImage } = modInfo;
 
         // deserialize xml
-        const document = xmlStringToDocument(xmlData, folder, meta);
+        const document = xmlStringToDocument(aboutFileContents, folder, meta);
         if (document === null) continue;
         const rawObject = convert(document, meta);
         if (rawObject === null) continue;
 
         // format data
-        const modData = formatRawData<T>(folder, rawObject.ModMetaData, meta, source);
+        const modData = formatRawData<T>(folder, rawObject.ModMetaData, meta, source, previewImage);
 
         mods[modData.packageId] = modData;
     }
@@ -62,7 +63,11 @@ function main<T extends ModSource>(path: string, source: ModSource): { mods: Mod
 
 export default main;
 
-function getModInfo(filePath: string, name: string, meta: LoadOperationMeta): string | null {
+interface ModInfoResponse {
+    aboutFileContents: string;
+    previewImage?: string;
+}
+function getModInfo(filePath: string, name: string, meta: LoadOperationMeta): ModInfoResponse | null {
     try {
         let fullPath = join(filePath, name);
         const subFolders = readdirSync(fullPath).filter((e) => !e.includes('.'));
@@ -78,6 +83,8 @@ function getModInfo(filePath: string, name: string, meta: LoadOperationMeta): st
         const subFiles = readdirSync(fullPath);
 
         const aboutFile = subFiles.find((name) => name.toLowerCase() === 'about.xml');
+        let previewImage = subFiles.find((name) => name.toLowerCase() === 'preview.png');
+        if (previewImage) previewImage = join(fullPath, previewImage);
 
         if (!aboutFile) {
             meta.missingAboutXML.push(name);
@@ -85,8 +92,12 @@ function getModInfo(filePath: string, name: string, meta: LoadOperationMeta): st
         }
 
         fullPath = join(fullPath, aboutFile);
-        const modData = readFileSync(fullPath, 'utf-8');
-        return modData;
+        const aboutFileContents = readFileSync(fullPath, 'utf-8');
+
+        return {
+            aboutFileContents,
+            previewImage,
+        };
     } catch (error) {
         if (error instanceof Error) meta.errors.push(error);
         else meta.unknownErrors.push(error);
@@ -191,6 +202,7 @@ function formatRawData<T extends ModSource>(
     rawData: AboutXML,
     meta: LoadOperationMeta,
     source: ModSource,
+    previewImage: string | undefined,
 ): Mod<T> {
     const output: Mod<T> = {
         name: rawData.name || folderName,
@@ -214,6 +226,7 @@ function formatRawData<T extends ModSource>(
         forceLoadBefore: rawData?.forceLoadBefore ? u2a(rawData.forceLoadBefore) : [],
         forceLoadAfter: rawData?.forceLoadAfter ? u2a(rawData.forceLoadAfter) : [],
         source,
+        previewImage: previewImage || null,
     };
 
     if (source === 'core') (output as CoreMod).steamAppId = rawData?.steamAppId || null;

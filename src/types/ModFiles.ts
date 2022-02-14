@@ -82,6 +82,7 @@ export interface Mod<T extends ModSource> {
     name: string;
     authors: string[];
     packageId: PackageId;
+    previewImage: string | null;
     supportedVersions: number[];
     folderName: string;
     url: URL | null;

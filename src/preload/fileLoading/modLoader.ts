@@ -33,7 +33,7 @@ function main<T extends ModSource>(path: string, source: ModSource): { mods: Mod
         errors: [],
     };
 
-    const allItems = readdirSync(path);
+    const allItems = readdirSync(path, 'utf-8');
     const folders = allItems.filter((e) => !e.includes('.'));
     const files = allItems.filter((e) => e.includes('.'));
 
@@ -49,7 +49,7 @@ function main<T extends ModSource>(path: string, source: ModSource): { mods: Mod
         // deserialize xml
         const document = xmlStringToDocument(aboutFileContents, folder, meta);
         if (document === null) continue;
-        const rawObject = convert(document, meta);
+        const rawObject = convert<AboutXML, 'ModMetaData'>(document, meta);
         if (rawObject === null) continue;
 
         // format data
@@ -105,7 +105,7 @@ function getModInfo(filePath: string, name: string, meta: LoadOperationMeta): Mo
     }
 }
 
-function xmlStringToDocument(s: string, folderName: string, meta: LoadOperationMeta): Document | null {
+export function xmlStringToDocument(s: string, folderName?: string, meta?: LoadOperationMeta): Document | null {
     try {
         // remove `<?xml version="1.0"` header if present
         const headerTagIndex = s.indexOf('?>');
@@ -118,9 +118,11 @@ function xmlStringToDocument(s: string, folderName: string, meta: LoadOperationM
 
         return document;
     } catch (error) {
-        meta.invalidXML.push(folderName);
-        if (error instanceof Error) meta.errors.push(error);
-        else meta.unknownErrors.push(error);
+        if (meta && folderName) {
+            meta.invalidXML.push(folderName);
+            if (error instanceof Error) meta.errors.push(error);
+            else meta.unknownErrors.push(error);
+        }
         return null;
     }
 }
@@ -186,13 +188,15 @@ function removeRedundnantListNesting(obj: ParsedValue | Primitive): ParsedValue 
     return obj;
 }
 
-function convert(document: Document, meta: LoadOperationMeta): Record<'ModMetaData', AboutXML> | null {
+export function convert<T, K extends string>(document: Document, meta?: LoadOperationMeta): Record<K, T> | null {
     try {
         const data = removeRedundnantListNesting(xml2json(document)) as object;
-        return data as Record<'ModMetaData', AboutXML>;
+        return data as Record<K, T>;
     } catch (error) {
-        if (error instanceof Error) meta.errors.push(error);
-        else meta.unknownErrors.push(error);
+        if (meta) {
+            if (error instanceof Error) meta.errors.push(error);
+            else meta.unknownErrors.push(error);
+        }
         return null;
     }
 }
@@ -212,9 +216,7 @@ function formatRawData<T extends ModSource>(
         folderName,
         url: validateURL(meta, rawData.url),
         steamWorkshopURL:
-            source === 'workshop'
-                ? new URL(`https://steamcommunity.com/sharedfiles/filedetails/?id=${folderName}`)
-                : null,
+            source === 'workshop' ? `https://steamcommunity.com/sharedfiles/filedetails/?id=${folderName}` : null,
         description: rawData.description || 'No description.',
         modDependencies: rawData?.modDependencies ? u2a(rawData.modDependencies) : [],
         loadAfter: rawData?.loadAfter ? u2a(rawData.loadAfter) : [],
@@ -234,15 +236,15 @@ function formatRawData<T extends ModSource>(
     return output;
 }
 
-function validateURL(meta: LoadOperationMeta, url?: string): URL | null {
+function validateURL(meta: LoadOperationMeta, url?: string): string | null {
     try {
         if (!url) return null;
-        return new URL(url);
+        return new URL(url).toString();
     } catch (error) {
         if (url) {
             // some urls are just missing the https at the start
             try {
-                return new URL(`https://${url}`);
+                return new URL(`https://${url}`).toString();
             } catch (error) {
                 if (error instanceof Error) meta.errors.push(error);
                 else meta.unknownErrors.push(error);

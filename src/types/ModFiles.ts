@@ -85,8 +85,8 @@ export interface Mod<T extends ModSource> {
     previewImage: string | null;
     supportedVersions: number[];
     folderName: string;
-    url: URL | null;
-    steamWorkshopURL: URL | null;
+    url: string | null;
+    steamWorkshopURL: string | null;
     description: string;
     modDependencies: ModDependency[];
     loadAfter: PackageId[];
@@ -103,7 +103,7 @@ export interface Mod<T extends ModSource> {
 }
 
 export interface WorkshopMod extends Mod<'workshop'> {
-    steamWorkshopURL: URL;
+    steamWorkshopURL: string;
     source: 'workshop';
 }
 

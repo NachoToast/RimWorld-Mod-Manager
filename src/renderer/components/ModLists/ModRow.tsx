@@ -1,19 +1,21 @@
 import { IconButton, ListItem, ListItemButton, ListItemText, Tooltip } from '@mui/material';
 import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { setCurrentMod } from '../../redux/slices/main.slice';
+import { useDispatch, useSelector } from 'react-redux';
+import { getCurrentMod, setCurrentMod } from '../../redux/slices/main.slice';
 import { Mod, ModSource } from '../../../types/ModFiles';
 import AddIcon from '@mui/icons-material/Add';
 
 const ModRow = (props: { index: number; style: React.CSSProperties; mod: Mod<ModSource> }) => {
     const dispatch = useDispatch();
+    const currentMod = useSelector(getCurrentMod);
     const [isHovered, setIsHovered] = useState(false);
 
     const { index, style, mod } = props;
 
     const handleClick = (e: React.MouseEvent) => {
         e.preventDefault();
-        dispatch(setCurrentMod(mod));
+        if (currentMod === mod) dispatch(setCurrentMod(null));
+        else dispatch(setCurrentMod(mod));
     };
 
     const handleAddToList = (e: React.MouseEvent) => {

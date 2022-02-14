@@ -47,6 +47,7 @@
                 [
                     "@electron-forge/plugin-webpack",
                     {
+                        "devContentSecurityPolicy": "img-src 'self' file://*",
                         "mainConfig": "./webpack.main.config.js",
                         "renderer": {
                             "config": "./webpack.renderer.config.js",

@@ -19,7 +19,7 @@ const ModLists = () => {
     const allMods = useSelector(getMods);
 
     return (
-        <Box maxHeight={800} height={800} sx={{ overflowY: 'auto' }}>
+        <Box height={800} sx={{ overflowY: 'auto' }}>
             {(Object.keys(allMods).reverse() as ModSource[]).map((listName, index) => {
                 const mods = allMods[listName];
                 if (typeof mods === 'string') {

@@ -3,6 +3,7 @@ import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { ModSource } from '../types/ModFiles';
 import ModLists from './components/ModLists/ModLists';
+import ModPreview from './components/ModPreview/ModPreview';
 import SettingsButton from './components/Settings/SettingsButton';
 import SettingsPage from './components/Settings/SettingsPage';
 import { getMods, getSettingsOpen, loadMods } from './redux/slices/main.slice';
@@ -31,13 +32,13 @@ const App = () => {
             </Grow>
 
             <Grid container spacing={2}>
-                <Grid item xs={12} md={6} xl={4}>
+                <Grid item xs={12} md={6} lg={4}>
                     <ModLists />
                 </Grid>
-                <Grid item xs={12} md={6} xl={4} sx={{ border: 'solid 1px aquamarine' }}>
-                    <Typography>Preview</Typography>
+                <Grid item xs={12} md={6} lg={4}>
+                    <ModPreview />
                 </Grid>
-                <Grid item xs={12} xl={4} sx={{ flexGrow: 1, border: 'solid 1px pink' }}>
+                <Grid item xs={12} lg={4} sx={{ flexGrow: 1, border: 'solid 1px pink' }}>
                     <Typography>Active List</Typography>
                 </Grid>
             </Grid>

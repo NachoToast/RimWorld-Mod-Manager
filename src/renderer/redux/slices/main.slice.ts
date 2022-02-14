@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { FilePath, ModList, ModSource } from '../../../types/ModFiles';
+import { FilePath, Mod, ModList, ModSource } from '../../../types/ModFiles';
 import { pathDefaults, storageKeys } from '../../constants/constants';
 import StoreState from '../state';
 
@@ -22,6 +22,8 @@ export interface State {
     };
 
     currentModList: ModList<ModSource> | ErrorString | undefined;
+
+    currentMod: Mod<ModSource> | null;
 }
 
 const getFromStorage = (t: FilePath): string => localStorage.getItem(storageKeys[t]) || pathDefaults[t];
@@ -49,6 +51,8 @@ export const initialState: State = {
     },
 
     currentModList: undefined,
+
+    currentMod: null,
 };
 
 const mainSlice = createSlice({
@@ -87,10 +91,13 @@ const mainSlice = createSlice({
         setCurrentModList(state, { payload }: { payload: ModList<ModSource> }) {
             state.currentModList = payload;
         },
+        setCurrentMod(state, { payload }: { payload: Mod<ModSource> | null }) {
+            state.currentMod = payload;
+        },
     },
 });
 
-export const { setSettingsOpen, setFilePath, setMods, setCurrentModList } = mainSlice.actions;
+export const { setSettingsOpen, setFilePath, setMods, setCurrentModList, setCurrentMod } = mainSlice.actions;
 
 export default mainSlice.reducer;
 
@@ -99,6 +106,8 @@ export const getSettingsOpen = (state: StoreState) => state.main.settingsOpen;
 export const getFilePaths = (state: StoreState) => state.main.filePaths;
 
 export const getMods = (state: StoreState) => state.main.mods;
+
+export const getCurrentMod = (state: StoreState) => state.main.currentMod;
 
 export const loadMods = createAsyncThunk('main/loadMods', (target: ModSource, { getState, dispatch }) => {
     const state = getState() as StoreState;

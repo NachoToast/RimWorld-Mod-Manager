@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { FilePath, Mod, ModList, ModSource } from '../../../types/ModFiles';
+import { FilePath, Mod, ModList, ModSource, PackageId } from '../../../types/ModFiles';
 import { pathDefaults, storageKeys } from '../../constants/constants';
 import StoreState from '../state';
 
@@ -21,7 +21,7 @@ export interface State {
         [K in ModSource]: ModList<K> | ErrorString | undefined;
     };
 
-    currentModList: ModList<ModSource> | ErrorString | undefined;
+    currentModList: Mod<ModSource>[] | ErrorString | undefined;
 
     currentMod: Mod<ModSource> | null;
 }
@@ -88,7 +88,7 @@ const mainSlice = createSlice({
             const { mods, target } = action.payload;
             state.mods[target] = mods;
         },
-        setCurrentModList(state, { payload }: { payload: ModList<ModSource> }) {
+        setCurrentModList(state, { payload }: { payload: Mod<ModSource>[] | ErrorString }) {
             state.currentModList = payload;
         },
         setCurrentMod(state, { payload }: { payload: Mod<ModSource> | null }) {
@@ -109,6 +109,8 @@ export const getMods = (state: StoreState) => state.main.mods;
 
 export const getCurrentMod = (state: StoreState) => state.main.currentMod;
 
+export const getCurrentModList = (state: StoreState) => state.main.currentModList;
+
 export const loadMods = createAsyncThunk('main/loadMods', (target: ModSource, { getState, dispatch }) => {
     const state = getState() as StoreState;
     const path = getFilePaths(state)[target];
@@ -122,3 +124,56 @@ export const loadMods = createAsyncThunk('main/loadMods', (target: ModSource, { 
         dispatch(setMods({ target, mods }));
     }
 });
+
+export const loadModList = createAsyncThunk('main/loadModList', (_, { getState, dispatch }) => {
+    const state = getState() as StoreState;
+    const path = getFilePaths(state)['modlist'];
+    try {
+        const modsConfig = window.api.listLoader(path);
+
+        dispatch(loadPackageIds(modsConfig.activeMods));
+    } catch (error) {
+        let output = 'Unknown error occurred';
+        if (error instanceof Error) output = error.message;
+        dispatch(setCurrentModList(output));
+    }
+});
+
+/** Creates a list of mods from a set of package ID's,
+ * using the states `mods` field as a lookup table.
+ */
+export const loadPackageIds = createAsyncThunk(
+    'main/loadPackageIds',
+    (packageIds: PackageId[], { getState, dispatch }) => {
+        const state = getState() as StoreState;
+
+        const lookupTable: ModList<ModSource> = {};
+
+        const mods = getMods(state);
+        for (const listSource in mods) {
+            const modList = mods[listSource as ModSource];
+            if (!!modList && typeof modList !== 'string') {
+                for (const packageId in modList) {
+                    lookupTable[packageId.toLowerCase()] = modList[packageId];
+                }
+            }
+        }
+
+        const outputModList: Mod<ModSource>[] = [];
+        const unknownMods: PackageId[] = [];
+
+        for (const packageId of packageIds) {
+            const matchingMod = lookupTable[packageId];
+            console.log(packageId, matchingMod);
+            if (!matchingMod) unknownMods.push(packageId);
+            else outputModList.push(matchingMod);
+        }
+
+        if (unknownMods.length) {
+            console.warn(`${unknownMods.length} Unknown mods in current modlist!`);
+            console.log(unknownMods);
+        }
+
+        dispatch(setCurrentModList(outputModList));
+    },
+);

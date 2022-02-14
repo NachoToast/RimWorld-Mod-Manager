@@ -2,16 +2,18 @@ import { Container, Grid, Grow, Typography } from '@mui/material';
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { ModSource } from '../types/ModFiles';
+import ActiveModList from './components/ModLists/ActiveModList';
 import ModLists from './components/ModLists/ModLists';
 import ModPreview from './components/ModPreview/ModPreview';
 import SettingsButton from './components/Settings/SettingsButton';
 import SettingsPage from './components/Settings/SettingsPage';
-import { getMods, getSettingsOpen, loadMods } from './redux/slices/main.slice';
+import { getCurrentModList, getMods, getSettingsOpen, loadModList, loadMods } from './redux/slices/main.slice';
 
 const App = () => {
     const dispatch = useDispatch();
     const settingsOpen = useSelector(getSettingsOpen);
     const mods = useSelector(getMods);
+    const modlist = useSelector(getCurrentModList);
 
     useEffect(() => {
         for (const key of Object.keys(mods) as ModSource[]) {
@@ -20,6 +22,12 @@ const App = () => {
             }
         }
     }, [dispatch, mods]);
+
+    useEffect(() => {
+        if (modlist === undefined) {
+            dispatch(loadModList());
+        } else console.log(modlist);
+    }, [dispatch, modlist]);
 
     return (
         <Container sx={{ backgroundColor: '#272727' }} maxWidth={false}>
@@ -38,8 +46,8 @@ const App = () => {
                 <Grid item xs={12} md={6} lg={4}>
                     <ModPreview />
                 </Grid>
-                <Grid item xs={12} lg={4} sx={{ flexGrow: 1, border: 'solid 1px pink' }}>
-                    <Typography>Active List</Typography>
+                <Grid item xs={12} lg={4}>
+                    <ActiveModList />
                 </Grid>
             </Grid>
         </Container>

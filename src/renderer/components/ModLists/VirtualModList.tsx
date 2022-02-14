@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { ModList, ModSource } from '../../../types/ModFiles';
-import { ListItem, ListItemButton, ListItemText } from '@mui/material';
 import { FixedSizeList } from 'react-window';
+import ModRow from './ModRow';
 
 const VirtualModList = ({ mods }: { mods: ModList<ModSource> }) => {
     // sort by folder name to emulate order in file
@@ -11,22 +11,10 @@ const VirtualModList = ({ mods }: { mods: ModList<ModSource> }) => {
     );
 
     const row = (props: { index: number; style: React.CSSProperties }) => {
-        const { index, style } = props;
+        const { index } = props;
         const mod = mods[packageIds[index]];
 
-        return (
-            <ListItem
-                style={style}
-                key={index}
-                component="div"
-                disablePadding
-                sx={{ whiteSpace: 'nowrap', overflow: 'hidden' }}
-            >
-                <ListItemButton sx={{ maxWidth: '100%' }}>
-                    <ListItemText primary={mod.name} />
-                </ListItemButton>
-            </ListItem>
-        );
+        return <ModRow {...props} mod={mod} />;
     };
 
     const maxHeight = useMemo(() => Math.min(600, 50 * packageIds.length), [packageIds.length]);

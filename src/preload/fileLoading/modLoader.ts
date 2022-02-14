@@ -193,7 +193,7 @@ function formatRawData<T extends ModSource>(
     source: ModSource,
 ): Mod<T> {
     const output: Mod<T> = {
-        name: rawData.name || 'Unknown Mod',
+        name: rawData.name || folderName,
         authors: rawData.author.split(','),
         packageId: rawData.packageId,
         supportedVersions: u2a(rawData.supportedVersions),

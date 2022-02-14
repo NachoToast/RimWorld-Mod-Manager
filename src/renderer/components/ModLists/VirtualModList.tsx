@@ -29,8 +29,10 @@ const VirtualModList = ({ mods }: { mods: ModList<ModSource> }) => {
         );
     };
 
+    const maxHeight = useMemo(() => Math.min(600, 50 * packageIds.length), [packageIds.length]);
+
     return (
-        <FixedSizeList height={400} width="100%" itemSize={46} itemCount={packageIds.length} overscanCount={5}>
+        <FixedSizeList height={maxHeight} width="100%" itemSize={46} itemCount={packageIds.length} overscanCount={5}>
             {row}
         </FixedSizeList>
     );

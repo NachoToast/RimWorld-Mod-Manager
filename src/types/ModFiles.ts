@@ -71,6 +71,11 @@ export interface AboutXML {
 
     /** 2% overall; 100% object */
     loadAfterByVersion?: ByVersionMap<ModDependency>;
+
+    /** Only seen on core "mods" */
+    forceLoadBefore?: PackageId | PackageId[];
+    forceLoadAfter?: PackageId | PackageId[];
+    steamAppId?: number;
 }
 
 export interface Mod<T extends ModSource> {
@@ -89,6 +94,10 @@ export interface Mod<T extends ModSource> {
     loadBefore: PackageId[];
     descriptionsByVersion: ByVersionMap<Mod<T>['description']>;
     loadAfterByVersion: ByVersionMap<ModDependency>;
+
+    forceLoadBefore: PackageId[];
+    forceLoadAfter: PackageId[];
+
     source: ModSource;
 }
 
@@ -104,5 +113,8 @@ export interface LocalMod extends Mod<'local'> {
 
 export interface CoreMod extends Mod<'core'> {
     steamWorkshopURL: null;
+
+    /** Expansions have a Steam app ID, base RimWorld does not. */
+    steamAppId: number | null;
     source: 'core';
 }

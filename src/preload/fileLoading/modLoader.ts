@@ -1,4 +1,4 @@
-import { Mod, AboutXML, ByVersionMap, ModDependency, ModSource, ModList } from '../../types/ModFiles';
+import { Mod, AboutXML, ByVersionMap, ModDependency, ModSource, ModList, CoreMod } from '../../types/ModFiles';
 import { readdirSync, readFileSync } from 'fs';
 import { join } from 'path';
 
@@ -137,7 +137,7 @@ function xml2json(xml: Document | Element): ParsedValue | Primitive {
                 if (Array.isArray(destination)) {
                     destination.push(xml2json(item));
                 } else {
-                    output[nodeName] = [xml2json(item)];
+                    output[nodeName] = [output[nodeName], xml2json(item)];
                 }
             }
         }
@@ -192,7 +192,7 @@ function formatRawData<T extends ModSource>(
     meta: LoadOperationMeta,
     source: ModSource,
 ): Mod<T> {
-    return {
+    const output: Mod<T> = {
         name: rawData.name || 'Unknown Mod',
         authors: rawData.author.split(','),
         packageId: rawData.packageId,
@@ -211,8 +211,14 @@ function formatRawData<T extends ModSource>(
         loadBefore: rawData?.loadBefore ? u2a(rawData.loadBefore) : [],
         descriptionsByVersion: validateVersionMap<string>(rawData.descriptionsByVersion),
         loadAfterByVersion: validateVersionMap<ModDependency>(rawData.loadAfterByVersion),
+        forceLoadBefore: rawData?.forceLoadBefore ? u2a(rawData.forceLoadBefore) : [],
+        forceLoadAfter: rawData?.forceLoadAfter ? u2a(rawData.forceLoadAfter) : [],
         source,
     };
+
+    if (source === 'core') (output as CoreMod).steamAppId = rawData?.steamAppId || null;
+
+    return output;
 }
 
 function validateURL(meta: LoadOperationMeta, url?: string): URL | null {

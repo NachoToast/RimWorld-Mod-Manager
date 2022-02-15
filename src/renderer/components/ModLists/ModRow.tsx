@@ -4,19 +4,18 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getCurrentMod, setCurrentMod } from '../../redux/slices/main.slice';
 import { Mod, ModSource, PackageId } from '../../../types/ModFiles';
 import AddIcon from '@mui/icons-material/Add';
-import { getModList } from '../../redux/slices/modManager.slice';
+import RemoveIcon from '@mui/icons-material/Remove';
+import { addToModList, getModList, removeFromModList } from '../../redux/slices/modManager.slice';
 
 /** Basic List item for a mod in the active list but not in the library. */
 export const UnknownModRow = (props: { index: number; style: React.CSSProperties; packageId: PackageId }) => {
-    const modList = useSelector(getModList);
+    const dispatch = useDispatch();
     const [isHovered, setIsHovered] = useState(false);
 
     const { index, style, packageId } = props;
-
-    const isInModList = useMemo(() => !!modList.lookup[packageId.toLowerCase()], [modList.lookup, packageId]);
-
-    const handleAddToList = (e: React.MouseEvent) => {
+    const handleRemoveFromList = (e: React.MouseEvent) => {
         e.preventDefault();
+        dispatch(removeFromModList(packageId));
     };
 
     return (
@@ -30,9 +29,9 @@ export const UnknownModRow = (props: { index: number; style: React.CSSProperties
             onMouseLeave={() => setIsHovered(false)}
             secondaryAction={
                 isHovered && (
-                    <Tooltip title={isInModList ? 'Remove from list' : 'Add to list'} placement="left">
-                        <IconButton onClick={handleAddToList}>
-                            <AddIcon />
+                    <Tooltip title="Remove from list" placement="left">
+                        <IconButton onClick={handleRemoveFromList}>
+                            <RemoveIcon />
                         </IconButton>
                     </Tooltip>
                 )
@@ -65,6 +64,8 @@ const ModRow = (props: { index: number; style: React.CSSProperties; mod: Mod<Mod
 
     const handleAddToList = (e: React.MouseEvent) => {
         e.preventDefault();
+        if (isInModList) dispatch(removeFromModList(mod.packageId));
+        else dispatch(addToModList({ packageId: mod.packageId }));
     };
 
     return (
@@ -79,9 +80,7 @@ const ModRow = (props: { index: number; style: React.CSSProperties; mod: Mod<Mod
             secondaryAction={
                 isHovered && (
                     <Tooltip title={isInModList ? 'Remove from list' : 'Add to list'} placement="left">
-                        <IconButton onClick={handleAddToList}>
-                            <AddIcon />
-                        </IconButton>
+                        <IconButton onClick={handleAddToList}>{isInModList ? <RemoveIcon /> : <AddIcon />}</IconButton>
                     </Tooltip>
                 )
             }

@@ -18,7 +18,7 @@ const ActiveModList = () => {
     const row = (props: { index: number; style: React.CSSProperties }) => {
         const mod = lookup[packageIds[props.index]];
 
-        if (mod && !true) {
+        if (mod) {
             return <ModRow {...props} mod={lookup[packageIds[props.index]]} />;
         } else {
             return <UnknownModRow {...props} packageId={packageIds[props.index]} />;

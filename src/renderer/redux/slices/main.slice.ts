@@ -1,4 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { RimWorldVersion } from '../../../preload/fileLoading/listLoader';
 import { FilePath, Mod, ModSource } from '../../../types/ModFiles';
 import { pathDefaults, storageKeys } from '../../constants/constants';
 import StoreState from '../state';
@@ -14,6 +15,8 @@ export interface State {
     };
 
     currentMod: Mod<ModSource> | null;
+
+    rimWorldVersion: RimWorldVersion | null;
 }
 
 const getFromStorage = (t: FilePath): string => localStorage.getItem(storageKeys[t]) || pathDefaults[t];
@@ -32,6 +35,8 @@ export const initialState: State = {
     filePaths: getAllFromStorage(),
 
     currentMod: null,
+
+    rimWorldVersion: null,
 };
 
 const mainSlice = createSlice({
@@ -55,14 +60,18 @@ const mainSlice = createSlice({
         setCurrentMod(state, { payload }: { payload: Mod<ModSource> | null }) {
             state.currentMod = payload;
         },
+        setRimWorldVersion(state, { payload }: { payload: RimWorldVersion }) {
+            state.rimWorldVersion = payload;
+        },
     },
 });
 
-export const { setSettingsOpen, setFilePath, setCurrentMod } = mainSlice.actions;
+export const { setSettingsOpen, setFilePath, setCurrentMod, setRimWorldVersion } = mainSlice.actions;
 
 export const getSettingsOpen = (state: StoreState) => state.main.settingsOpen;
 export const getFilePaths = (state: StoreState) => state.main.filePaths;
 export const getCurrentMod = (state: StoreState) => state.main.currentMod;
+export const getRimWorldVersion = (state: StoreState) => state.main.rimWorldVersion;
 
 export const loadMods = createAsyncThunk('main/loadMods', (target: ModSource, { getState, dispatch }) => {
     const state = getState() as StoreState;
@@ -82,7 +91,7 @@ export const loadModList = createAsyncThunk('main/loadModList', (_, { getState, 
     const path = getFilePaths(state)['modlist'];
     try {
         const { activeMods, version } = window.api.listLoader(path);
-        console.log(`Detected RimWorld ${version.major} ${version.minor} ${version.rev}`);
+        dispatch(setRimWorldVersion(version));
         for (const packageId of activeMods) {
             dispatch(addToModList({ packageId }));
         }

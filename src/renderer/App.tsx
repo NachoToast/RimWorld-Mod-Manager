@@ -6,6 +6,7 @@ import ModLists from './components/ModLists/ModLists';
 import ModPreview from './components/ModPreview/ModPreview';
 import SettingsButton from './components/Settings/SettingsButton';
 import SettingsPage from './components/Settings/SettingsPage';
+import VersionLabel from './components/Util/VersionLabel';
 import { getSettingsOpen, initialLoad } from './redux/slices/main.slice';
 
 const App = () => {
@@ -18,6 +19,7 @@ const App = () => {
 
     return (
         <Container sx={{ backgroundColor: '#272727' }} maxWidth={false}>
+            <VersionLabel />
             <SettingsButton />
             {settingsOpen && <SettingsPage />}
             <Grow in>

@@ -14,15 +14,17 @@ interface ModsConfigXML {
     knownExpansions: PackageId[];
 }
 
+export interface RimWorldVersion {
+    /** @example 1.2, 1.3 */
+    major: number;
+    /** @example 3200 */
+    minor: number;
+    /** @example 'rev726' */
+    rev: string;
+}
+
 export interface ModsConfig extends Omit<ModsConfigXML, 'version'> {
-    version: {
-        /** @example '1.2', '1.3' */
-        major: string;
-        /** @example '3200' */
-        minor: string;
-        /** @example 'rev726' */
-        rev: string;
-    };
+    version: RimWorldVersion;
 }
 
 function main(path: string): ModsConfig {
@@ -42,8 +44,8 @@ function main(path: string): ModsConfig {
 
     const output: ModsConfig = {
         version: {
-            major: `${majorA}.${majorB}`,
-            minor,
+            major: Number(`${majorA}.${majorB}`),
+            minor: Number(minor),
             rev,
         },
         activeMods,

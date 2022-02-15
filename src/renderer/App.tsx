@@ -18,7 +18,7 @@ const App = () => {
     }, [dispatch]);
 
     return (
-        <Container sx={{ backgroundColor: '#272727' }} maxWidth={false}>
+        <Container sx={{ backgroundColor: '#272727', height: '100%' }} maxWidth={false}>
             <VersionLabel />
             <SettingsButton />
             {settingsOpen && <SettingsPage />}

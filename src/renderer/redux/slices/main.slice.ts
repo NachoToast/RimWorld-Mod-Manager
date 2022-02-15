@@ -76,9 +76,9 @@ export const getRimWorldVersion = (state: StoreState) => state.main.rimWorldVers
 export const loadMods = createAsyncThunk('main/loadMods', (target: ModSource, { getState, dispatch }) => {
     const state = getState() as StoreState;
     const path = getFilePaths(state)[target];
+    dispatch(removeFromLibraryBySource(target));
     try {
         const { mods } = window.api.modLoader(path, target);
-        dispatch(removeFromLibraryBySource(target));
         for (const mod of mods) {
             dispatch(addToLibrary(mod));
         }
@@ -90,9 +90,9 @@ export const loadMods = createAsyncThunk('main/loadMods', (target: ModSource, { 
 export const loadModList = createAsyncThunk('main/loadModList', (_, { getState, dispatch }) => {
     const state = getState() as StoreState;
     const path = getFilePaths(state)['modlist'];
+    dispatch(clearModList());
     try {
         const { activeMods, version } = window.api.listLoader(path);
-        dispatch(clearModList());
         dispatch(setRimWorldVersion(version));
         for (const packageId of activeMods) {
             dispatch(addToModList({ packageId }));
@@ -119,16 +119,18 @@ export const checkFilePathsChanged = createAsyncThunk(
         const state = getState() as StoreState;
         const newValues = getFilePaths(state);
 
+        // modlist should be reloaded when files change
+        let reloadModList = false;
+
         for (const valueName in newValues) {
             const k = valueName as FilePath;
             if (newValues[k] !== oldValues[k]) {
-                if (k === 'modlist') {
-                    dispatch(loadModList);
-                } else {
-                    dispatch(loadMods(k as ModSource));
-                }
+                reloadModList = true;
+                if (k !== 'modlist') dispatch(loadMods(k as ModSource));
             }
         }
+
+        if (reloadModList) dispatch(loadModList());
     },
 );
 

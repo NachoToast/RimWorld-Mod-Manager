@@ -53,7 +53,7 @@ function main<T extends ModSource>(path: string, source: ModSource): { mods: Mod
         if (rawObject === null) continue;
 
         // format data
-        const modData = formatRawData<T>(folder, rawObject.ModMetaData, meta, source, previewImage);
+        const modData = formatRawData<T>(folder, rawObject.ModMetaData, meta, source, path, previewImage);
 
         mods.push(modData);
     }
@@ -206,6 +206,7 @@ function formatRawData<T extends ModSource>(
     rawData: AboutXML,
     meta: LoadOperationMeta,
     source: ModSource,
+    path: string,
     previewImage: string | undefined,
 ): Mod<T> {
     const output: Mod<T> = {
@@ -214,6 +215,7 @@ function formatRawData<T extends ModSource>(
         packageId: rawData.packageId,
         supportedVersions: u2a(rawData.supportedVersions),
         folderName,
+        folderPath: `${path}/${folderName}`,
         url: validateURL(meta, rawData.url),
         steamWorkshopURL:
             source === 'workshop' ? `https://steamcommunity.com/sharedfiles/filedetails/?id=${folderName}` : null,

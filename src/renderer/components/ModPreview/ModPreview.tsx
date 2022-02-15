@@ -5,6 +5,8 @@ import { getCurrentMod } from '../../redux/slices/main.slice';
 import PlagiarismIcon from '@mui/icons-material/Plagiarism';
 import { Mod, ModSource } from '../../../types/ModFiles';
 import LinkIcon from '../Util/LinkIcon';
+import OpenIcon from '../Util/OpenIcon';
+import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 
 const ModPreview = () => {
     const mod = useSelector(getCurrentMod);
@@ -56,6 +58,7 @@ const ModPreview = () => {
             <Stack direction="row">
                 {mod.url && <LinkIcon link={mod.url} />}
                 {mod.steamWorkshopURL && <LinkIcon link={mod.steamWorkshopURL} />}
+                <OpenIcon icon={<FolderOpenIcon />} title="Open mod folder" link={mod.folderPath} />
             </Stack>
         </Stack>
     );

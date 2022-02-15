@@ -85,6 +85,7 @@ export interface Mod<T extends ModSource> {
     previewImage: string | null;
     supportedVersions: number[];
     folderName: string;
+    folderPath: string;
     url: string | null;
     steamWorkshopURL: string | null;
     description: string;

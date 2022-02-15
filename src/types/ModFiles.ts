@@ -13,12 +13,19 @@ export interface ModDependency {
     downloadUrl?: string;
 }
 
-export interface ByVersionMap<T> {
-    'v1.0'?: T;
-    'v1.1'?: T;
-    'v1.2'?: T;
-    'v1.3'?: T;
-}
+/** @example
+ * ```ts
+ * {
+ *   'v1.0': T,
+ *   'v1.1': T,
+ *   'v1.2': T,
+ *   etc...
+ * }
+ * ```
+ */
+export type RawByVersionMap<T> = Record<string, T>;
+
+export type NumericalByVersionMap<T> = Record<number, T>;
 
 export interface ModList<T extends ModSource> {
     [index: PackageId]: Mod<T>;
@@ -61,16 +68,16 @@ export interface AboutXML {
     incompatibleWith?: PackageId | PackageId[];
 
     /** 4% */
-    modDependenciesByVersion?: ByVersionMap<ModDependency | [ModDependency]>;
+    modDependenciesByVersion?: RawByVersionMap<ModDependency | [ModDependency]>;
 
     /** 4% overall; 72% string, 27% string[] */
     loadBefore?: PackageId | PackageId[];
 
     /** 2% overall */
-    descriptionsByVersion?: ByVersionMap<AboutXML['description']>;
+    descriptionsByVersion?: RawByVersionMap<AboutXML['description']>;
 
     /** 2% overall; 100% object */
-    loadAfterByVersion?: ByVersionMap<ModDependency>;
+    loadAfterByVersion?: RawByVersionMap<ModDependency>;
 
     /** Only seen on core "mods" */
     forceLoadBefore?: PackageId | PackageId[];
@@ -92,10 +99,10 @@ export interface Mod<T extends ModSource> {
     modDependencies: ModDependency[];
     loadAfter: PackageId[];
     incompatibleWith: PackageId[];
-    modDependenciesByVersion: ByVersionMap<ModDependency>;
+    modDependenciesByVersion: NumericalByVersionMap<ModDependency>;
     loadBefore: PackageId[];
-    descriptionsByVersion: ByVersionMap<Mod<T>['description']>;
-    loadAfterByVersion: ByVersionMap<ModDependency>;
+    descriptionsByVersion: NumericalByVersionMap<Mod<T>['description']>;
+    loadAfterByVersion: NumericalByVersionMap<ModDependency>;
 
     forceLoadBefore: PackageId[];
     forceLoadAfter: PackageId[];

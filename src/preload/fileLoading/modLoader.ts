@@ -1,4 +1,12 @@
-import { Mod, AboutXML, ByVersionMap, ModDependency, ModSource, CoreMod } from '../../types/ModFiles';
+import {
+    Mod,
+    AboutXML,
+    RawByVersionMap,
+    ModDependency,
+    ModSource,
+    CoreMod,
+    NumericalByVersionMap,
+} from '../../types/ModFiles';
 import { readdirSync, readFileSync } from 'fs';
 import { join } from 'path';
 
@@ -258,8 +266,8 @@ function validateURL(meta: LoadOperationMeta, url?: string): string | null {
     }
 }
 
-function validateVersionMap<T>(a: ByVersionMap<T | undefined> | undefined): ByVersionMap<T> {
-    const output: ByVersionMap<T> = {};
+function validateVersionMap<T>(a: RawByVersionMap<T | undefined> | undefined): NumericalByVersionMap<T> {
+    const output: NumericalByVersionMap<T> = {};
     if (!a) return output;
 
     const keys = Object.keys(a) as (keyof typeof a)[];
@@ -267,12 +275,17 @@ function validateVersionMap<T>(a: ByVersionMap<T | undefined> | undefined): ByVe
     for (const key of keys) {
         const val = a[key];
         if (!val) continue;
-        output[key] = val;
+        output[stringVersionToNumerical(key)] = val;
     }
 
     return output;
 }
 
+const stringVersionToNumerical = (s: string): number => Number(s.slice(1));
+
+/** For dependency by version validation, this is needed since dependencies might be 1-length arrays,
+ * which {@link validateVersionMap} doesn't account for.
+ */
 function validateDependenciesByVersion<T extends ModSource>(
     a: AboutXML['modDependenciesByVersion'],
 ): Mod<T>['modDependenciesByVersion'] {
@@ -284,9 +297,12 @@ function validateDependenciesByVersion<T extends ModSource>(
     for (const key of keys) {
         const val = a[key];
         if (!val) continue;
+
+        const numericalKey = stringVersionToNumerical(key);
+
         if (Array.isArray(val)) {
-            output[key] = val[0];
-        } else output[key] = val;
+            output[numericalKey] = val[0];
+        } else output[numericalKey] = val;
     }
 
     return output;

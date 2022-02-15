@@ -11,8 +11,6 @@ const ActiveModList = () => {
 
     const { packageIds, lookup } = list;
 
-    console.log(lookup);
-
     const maxHeight = useMemo(() => Math.min(600, 50 * packageIds.length), [packageIds.length]);
 
     const row = (props: { index: number; style: React.CSSProperties }) => {

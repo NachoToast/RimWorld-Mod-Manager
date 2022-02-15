@@ -110,7 +110,6 @@ export const loadModList = createAsyncThunk('main/loadModList', (_, { getState, 
 });
 
 export const initialLoad = createAsyncThunk('main/initialLoad', (_, { getState, dispatch }) => {
-    console.log('initial load');
     const state = getState() as StoreState;
     const paths = getFilePaths(state);
     for (const path in paths) {

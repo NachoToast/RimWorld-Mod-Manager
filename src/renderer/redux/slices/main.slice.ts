@@ -3,7 +3,7 @@ import { RimWorldVersion } from '../../../preload/fileLoading/listLoader';
 import { FilePath, Mod, ModSource } from '../../../types/ModFiles';
 import { pathDefaults, storageKeys } from '../../constants/constants';
 import StoreState from '../state';
-import { addToLibrary, addToModList } from './modManager.slice';
+import { addToLibrary, addToModList, clearModList, removeFromLibraryBySource } from './modManager.slice';
 
 export type ErrorString = string;
 
@@ -78,6 +78,7 @@ export const loadMods = createAsyncThunk('main/loadMods', (target: ModSource, { 
     const path = getFilePaths(state)[target];
     try {
         const { mods } = window.api.modLoader(path, target);
+        dispatch(removeFromLibraryBySource(target));
         for (const mod of mods) {
             dispatch(addToLibrary(mod));
         }
@@ -91,6 +92,7 @@ export const loadModList = createAsyncThunk('main/loadModList', (_, { getState, 
     const path = getFilePaths(state)['modlist'];
     try {
         const { activeMods, version } = window.api.listLoader(path);
+        dispatch(clearModList());
         dispatch(setRimWorldVersion(version));
         for (const packageId of activeMods) {
             dispatch(addToModList({ packageId }));
@@ -110,5 +112,24 @@ export const initialLoad = createAsyncThunk('main/initialLoad', (_, { getState, 
     }
     dispatch(loadModList());
 });
+
+export const checkFilePathsChanged = createAsyncThunk(
+    'main/checkFilePathsChanged',
+    (oldValues: State['filePaths'], { getState, dispatch }) => {
+        const state = getState() as StoreState;
+        const newValues = getFilePaths(state);
+
+        for (const valueName in newValues) {
+            const k = valueName as FilePath;
+            if (newValues[k] !== oldValues[k]) {
+                if (k === 'modlist') {
+                    dispatch(loadModList);
+                } else {
+                    dispatch(loadMods(k as ModSource));
+                }
+            }
+        }
+    },
+);
 
 export default mainSlice.reducer;

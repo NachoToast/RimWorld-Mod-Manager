@@ -76,10 +76,14 @@ const modManagerSlice = createSlice({
                 console.warn(`Failed to find mod with PackageId %c${packageId}`, 'color: lightcoral');
             }
         },
+        clearModList(state) {
+            state.modList.lookup = {};
+            state.modList.packageIds = [];
+        },
     },
 });
 
-export const { clearLibrary, addToLibrary, removeFromLibrary, removeFromLibraryBySource, addToModList } =
+export const { clearLibrary, addToLibrary, removeFromLibrary, removeFromLibraryBySource, addToModList, clearModList } =
     modManagerSlice.actions;
 
 export const getModLibrary = (state: StoreState) => state.modManager.modLibrary;

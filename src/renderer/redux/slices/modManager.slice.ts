@@ -58,33 +58,45 @@ const modManagerSlice = createSlice({
          * if ommitted, will put at the end of the modlist.
          */
         addToModList(state, { payload }: { payload: { packageId: PackageId; index?: number } }) {
-            const { packageId, index } = payload;
-
-            const packageLower = packageId.toLocaleLowerCase();
+            const packageId = payload.packageId.toLowerCase();
+            const { index } = payload;
 
             const mod = state.modLibrary[packageId];
 
             // if package id not in list yet, add it
-            if (state.modList.packageIds.indexOf(packageLower) === -1) {
-                if (index) state.modList.packageIds.splice(index, 0, packageLower);
-                else state.modList.packageIds.push(packageLower);
+            if (state.modList.packageIds.indexOf(packageId) === -1) {
+                if (index) state.modList.packageIds.splice(index, 0, packageId);
+                else state.modList.packageIds.push(packageId);
             }
 
-            if (mod) {
-                state.modList.lookup[packageLower] = mod;
-            } else {
-                console.warn(`Failed to find mod with PackageId %c${packageId}`, 'color: lightcoral');
-            }
+            if (mod) state.modList.lookup[packageId] = mod;
+            else console.warn(`Failed to find mod with PackageId %c${packageId}`, 'color: lightcoral');
         },
         clearModList(state) {
             state.modList.lookup = {};
             state.modList.packageIds = [];
         },
+        /** Removes a mod from the mod list that has the specified PackageId. */
+        removeFromModList(state, { payload }: { payload: PackageId }) {
+            const packageId = payload.toLowerCase();
+            delete state.modList.lookup[packageId];
+            const index = state.modList.packageIds.indexOf(packageId);
+            if (index !== -1) {
+                state.modList.packageIds.splice(index, 1);
+            }
+        },
     },
 });
 
-export const { clearLibrary, addToLibrary, removeFromLibrary, removeFromLibraryBySource, addToModList, clearModList } =
-    modManagerSlice.actions;
+export const {
+    clearLibrary,
+    addToLibrary,
+    removeFromLibrary,
+    removeFromLibraryBySource,
+    addToModList,
+    clearModList,
+    removeFromModList,
+} = modManagerSlice.actions;
 
 export const getModLibrary = (state: StoreState) => state.modManager.modLibrary;
 export const getModList = (state: StoreState) => state.modManager.modList;

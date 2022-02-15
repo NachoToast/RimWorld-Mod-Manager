@@ -3,6 +3,7 @@ import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { checkFilePathsChanged, getFilePaths } from '../../redux/slices/main.slice';
 import FilePath from './FilePaths';
+import VersionOverride from './VersionOverride';
 
 const SettingsPage = () => {
     const dispatch = useDispatch();
@@ -25,9 +26,7 @@ const SettingsPage = () => {
             </Typography>
             <Stack spacing={4} divider={<Divider flexItem />}>
                 <FilePath />
-                <Stack spacing={2}>
-                    <Typography variant="h5">Another Option</Typography>
-                </Stack>
+                <VersionOverride />
             </Stack>
         </Container>
     );

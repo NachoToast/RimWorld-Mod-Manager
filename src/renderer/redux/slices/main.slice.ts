@@ -17,6 +17,7 @@ export interface State {
     currentMod: Mod<ModSource> | null;
 
     rimWorldVersion: RimWorldVersion | null;
+    rimwWorldVersionOverride: number | null;
 }
 
 const getFromStorage = (t: FilePath): string => localStorage.getItem(storageKeys[t]) || pathDefaults[t];
@@ -37,6 +38,7 @@ export const initialState: State = {
     currentMod: null,
 
     rimWorldVersion: null,
+    rimwWorldVersionOverride: null,
 };
 
 const mainSlice = createSlice({
@@ -63,15 +65,20 @@ const mainSlice = createSlice({
         setRimWorldVersion(state, { payload }: { payload: RimWorldVersion }) {
             state.rimWorldVersion = payload;
         },
+        setRimWorldVersionOverride(state, { payload }: { payload: number | null }) {
+            state.rimwWorldVersionOverride = payload;
+        },
     },
 });
 
-export const { setSettingsOpen, setFilePath, setCurrentMod, setRimWorldVersion } = mainSlice.actions;
+export const { setSettingsOpen, setFilePath, setCurrentMod, setRimWorldVersion, setRimWorldVersionOverride } =
+    mainSlice.actions;
 
 export const getSettingsOpen = (state: StoreState) => state.main.settingsOpen;
 export const getFilePaths = (state: StoreState) => state.main.filePaths;
 export const getCurrentMod = (state: StoreState) => state.main.currentMod;
 export const getRimWorldVersion = (state: StoreState) => state.main.rimWorldVersion;
+export const getRimWorldVersionOverride = (state: StoreState) => state.main.rimwWorldVersionOverride;
 
 export const loadMods = createAsyncThunk('main/loadMods', (target: ModSource, { getState, dispatch }) => {
     const state = getState() as StoreState;

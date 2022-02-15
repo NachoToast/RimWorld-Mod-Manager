@@ -1,7 +1,8 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { FilePath, Mod, ModList, ModSource, PackageId } from '../../../types/ModFiles';
+import { FilePath, Mod, ModSource } from '../../../types/ModFiles';
 import { pathDefaults, storageKeys } from '../../constants/constants';
 import StoreState from '../state';
+import { addToLibrary, addToModList } from './modManager.slice';
 
 export type ErrorString = string;
 
@@ -12,45 +13,23 @@ export interface State {
         [K in FilePath]: string;
     };
 
-    /** Used for checking changes on settings close. */
-    previousFilePaths: {
-        [K in FilePath]: string;
-    };
-
-    mods: {
-        [K in ModSource]: ModList<K> | ErrorString | undefined;
-    };
-
-    currentModList: Mod<ModSource>[] | ErrorString | undefined;
-
     currentMod: Mod<ModSource> | null;
 }
 
 const getFromStorage = (t: FilePath): string => localStorage.getItem(storageKeys[t]) || pathDefaults[t];
+const getAllFromStorage = (): { [K in FilePath]: string } => {
+    return {
+        core: getFromStorage('core'),
+        local: getFromStorage('local'),
+        modlist: getFromStorage('modlist'),
+        workshop: getFromStorage('workshop'),
+    };
+};
 
 export const initialState: State = {
     settingsOpen: false,
 
-    filePaths: {
-        workshop: getFromStorage('workshop'),
-        local: getFromStorage('local'),
-        modlist: getFromStorage('modlist'),
-        core: getFromStorage('core'),
-    },
-    previousFilePaths: {
-        workshop: getFromStorage('workshop'),
-        local: getFromStorage('local'),
-        modlist: getFromStorage('modlist'),
-        core: getFromStorage('core'),
-    },
-
-    mods: {
-        local: undefined,
-        workshop: undefined,
-        core: undefined,
-    },
-
-    currentModList: undefined,
+    filePaths: getAllFromStorage(),
 
     currentMod: null,
 };
@@ -61,17 +40,6 @@ const mainSlice = createSlice({
     reducers: {
         setSettingsOpen(state, { payload }: { payload: boolean }) {
             state.settingsOpen = payload;
-            if (payload) state.previousFilePaths = state.filePaths;
-            else {
-                // check for changes in file paths when settings is closed
-                for (const key of Object.keys(state.previousFilePaths)) {
-                    const k = key as FilePath;
-                    if (state.previousFilePaths[k] !== state.filePaths[k]) {
-                        if (k === 'modlist') state.currentModList = undefined;
-                        else state.mods[k] = undefined;
-                    }
-                }
-            }
         },
         setFilePath(state, action: { payload: { newPath: string; target: FilePath } }) {
             const { newPath, target } = action.payload;
@@ -84,44 +52,28 @@ const mainSlice = createSlice({
                 localStorage.removeItem(storageKeys[target]);
             }
         },
-        setMods(state, action: { payload: { mods: ModList<ModSource> | ErrorString; target: ModSource } }) {
-            const { mods, target } = action.payload;
-            state.mods[target] = mods;
-        },
-        setCurrentModList(state, { payload }: { payload: Mod<ModSource>[] | ErrorString }) {
-            state.currentModList = payload;
-        },
         setCurrentMod(state, { payload }: { payload: Mod<ModSource> | null }) {
             state.currentMod = payload;
         },
     },
 });
 
-export const { setSettingsOpen, setFilePath, setMods, setCurrentModList, setCurrentMod } = mainSlice.actions;
-
-export default mainSlice.reducer;
+export const { setSettingsOpen, setFilePath, setCurrentMod } = mainSlice.actions;
 
 export const getSettingsOpen = (state: StoreState) => state.main.settingsOpen;
-
 export const getFilePaths = (state: StoreState) => state.main.filePaths;
-
-export const getMods = (state: StoreState) => state.main.mods;
-
 export const getCurrentMod = (state: StoreState) => state.main.currentMod;
-
-export const getCurrentModList = (state: StoreState) => state.main.currentModList;
 
 export const loadMods = createAsyncThunk('main/loadMods', (target: ModSource, { getState, dispatch }) => {
     const state = getState() as StoreState;
     const path = getFilePaths(state)[target];
     try {
-        const { mods, meta } = window.api.modLoader(path, target);
-        dispatch(setMods({ target, mods }));
-        console.log(meta);
+        const { mods } = window.api.modLoader(path, target);
+        for (const mod of mods) {
+            dispatch(addToLibrary(mod));
+        }
     } catch (error) {
-        let mods = 'Unknown error occcurred';
-        if (error instanceof Error) mods = error.message;
-        dispatch(setMods({ target, mods }));
+        console.log(error);
     }
 });
 
@@ -129,51 +81,25 @@ export const loadModList = createAsyncThunk('main/loadModList', (_, { getState, 
     const state = getState() as StoreState;
     const path = getFilePaths(state)['modlist'];
     try {
-        const modsConfig = window.api.listLoader(path);
-
-        dispatch(loadPackageIds(modsConfig.activeMods));
+        const { activeMods, version } = window.api.listLoader(path);
+        console.log(`Detected RimWorld ${version.major} ${version.minor} ${version.rev}`);
+        for (const packageId of activeMods) {
+            dispatch(addToModList({ packageId }));
+        }
     } catch (error) {
-        let output = 'Unknown error occurred';
-        if (error instanceof Error) output = error.message;
-        dispatch(setCurrentModList(output));
+        console.log(error);
     }
 });
 
-/** Creates a list of mods from a set of package ID's,
- * using the states `mods` field as a lookup table.
- */
-export const loadPackageIds = createAsyncThunk(
-    'main/loadPackageIds',
-    (packageIds: PackageId[], { getState, dispatch }) => {
-        const state = getState() as StoreState;
+export const initialLoad = createAsyncThunk('main/initialLoad', (_, { getState, dispatch }) => {
+    console.log('initial load');
+    const state = getState() as StoreState;
+    const paths = getFilePaths(state);
+    for (const path in paths) {
+        if (path === 'modlist') continue;
+        dispatch(loadMods(path as ModSource));
+    }
+    dispatch(loadModList());
+});
 
-        const lookupTable: ModList<ModSource> = {};
-
-        const mods = getMods(state);
-        for (const listSource in mods) {
-            const modList = mods[listSource as ModSource];
-            if (!!modList && typeof modList !== 'string') {
-                for (const packageId in modList) {
-                    lookupTable[packageId.toLowerCase()] = modList[packageId];
-                }
-            }
-        }
-
-        const outputModList: Mod<ModSource>[] = [];
-        const unknownMods: PackageId[] = [];
-
-        for (const packageId of packageIds) {
-            const matchingMod = lookupTable[packageId];
-            console.log(packageId, matchingMod);
-            if (!matchingMod) unknownMods.push(packageId);
-            else outputModList.push(matchingMod);
-        }
-
-        if (unknownMods.length) {
-            console.warn(`${unknownMods.length} Unknown mods in current modlist!`);
-            console.log(unknownMods);
-        }
-
-        dispatch(setCurrentModList(outputModList));
-    },
-);
+export default mainSlice.reducer;

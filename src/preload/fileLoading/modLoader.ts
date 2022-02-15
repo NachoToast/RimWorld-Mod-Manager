@@ -1,4 +1,4 @@
-import { Mod, AboutXML, ByVersionMap, ModDependency, ModSource, ModList, CoreMod } from '../../types/ModFiles';
+import { Mod, AboutXML, ByVersionMap, ModDependency, ModSource, CoreMod } from '../../types/ModFiles';
 import { readdirSync, readFileSync } from 'fs';
 import { join } from 'path';
 
@@ -21,8 +21,8 @@ interface LoadOperationMeta {
     errors: Error[];
 }
 
-function main<T extends ModSource>(path: string, source: ModSource): { mods: ModList<T>; meta: LoadOperationMeta } {
-    const mods: ModList<T> = {};
+function main<T extends ModSource>(path: string, source: ModSource): { mods: Mod<T>[]; meta: LoadOperationMeta } {
+    const mods: Mod<T>[] = [];
     const meta: LoadOperationMeta = {
         files: 0,
         folders: 0,
@@ -55,7 +55,7 @@ function main<T extends ModSource>(path: string, source: ModSource): { mods: Mod
         // format data
         const modData = formatRawData<T>(folder, rawObject.ModMetaData, meta, source, previewImage);
 
-        mods[modData.packageId] = modData;
+        mods.push(modData);
     }
 
     return { mods, meta };

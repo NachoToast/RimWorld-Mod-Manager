@@ -16,11 +16,11 @@ interface ModsConfigXML {
 
 export interface ModsConfig extends Omit<ModsConfigXML, 'version'> {
     version: {
-        /** @example 1.2, 1.3 */
+        /** @example '1.2', '1.3' */
         major: string;
-        /** @example 3200 */
+        /** @example '3200' */
         minor: string;
-        /** @example rev726 */
+        /** @example 'rev726' */
         rev: string;
     };
 }

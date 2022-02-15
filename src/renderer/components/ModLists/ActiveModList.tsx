@@ -2,32 +2,41 @@ import { Stack, Typography } from '@mui/material';
 import React, { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { FixedSizeList } from 'react-window';
-import { Mod, ModSource } from '../../../types/ModFiles';
-import { getCurrentModList } from '../../redux/slices/main.slice';
-import ModRow from './ModRow';
+import { getModList } from '../../redux/slices/modManager.slice';
+import ModRow, { UnknownModRow } from './ModRow';
 
 /** A list of the mods in the currently selected mod list, i.e. `ModsConfig.xml` */
 const ActiveModList = () => {
-    const list = useSelector(getCurrentModList);
+    const list = useSelector(getModList);
 
-    if (!list) return <></>;
-    else if (typeof list === 'string') return <div>{list}</div>;
-    else return <ValidModList list={list} />;
-};
+    const { packageIds, lookup } = list;
 
-const ValidModList = ({ list }: { list: Mod<ModSource>[] }) => {
-    const maxHeight = useMemo(() => Math.min(600, 50 * list.length), [list.length]);
+    console.log(lookup);
+
+    const maxHeight = useMemo(() => Math.min(600, 50 * packageIds.length), [packageIds.length]);
 
     const row = (props: { index: number; style: React.CSSProperties }) => {
-        const { index } = props;
+        const mod = lookup[packageIds[props.index]];
 
-        return <ModRow {...props} mod={list[index]} />;
+        if (mod && !true) {
+            return <ModRow {...props} mod={lookup[packageIds[props.index]]} />;
+        } else {
+            return <UnknownModRow {...props} packageId={packageIds[props.index]} />;
+        }
     };
 
     return (
         <Stack height={800} sx={{ overflowY: 'auto' }}>
-            <Typography>Active Mods</Typography>
-            <FixedSizeList height={maxHeight} width="100%" itemSize={46} itemCount={list.length} overscanCount={5}>
+            <Typography textAlign="center" variant="h6">
+                Active Mods ({packageIds.length})
+            </Typography>
+            <FixedSizeList
+                height={maxHeight}
+                width="100%"
+                itemSize={46}
+                itemCount={packageIds.length}
+                overscanCount={5}
+            >
                 {row}
             </FixedSizeList>
         </Stack>

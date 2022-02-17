@@ -1,9 +1,14 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { RimWorldVersion } from '../../../preload/fileLoading/listLoader';
-import { FilePath, Mod, ModSource } from '../../../types/ModFiles';
-import { pathDefaults, storageKeys } from '../../constants/constants';
+import { FilePath, Mod, ModSource, PackageId } from '../../../types/ModFiles';
+import {
+    pathDefaults,
+    filePathStorageKeys,
+    defaultModSourceOverrides,
+    otherStorageKeys,
+} from '../../constants/constants';
 import StoreState from '../state';
-import { addToLibrary, addToModList, clearModList, removeFromLibraryBySource } from './modManager.slice';
+import { addToLibrary, addToModList, clearModList, getModLibrary, removeFromLibraryBySource } from './modManager.slice';
 
 export type ErrorString = string;
 
@@ -18,9 +23,13 @@ export interface State {
 
     rimWorldVersion: RimWorldVersion | null;
     rimwWorldVersionOverride: number | null;
+
+    modOverrides: {
+        [index: PackageId]: ModSource;
+    };
 }
 
-const getFromStorage = (t: FilePath): string => localStorage.getItem(storageKeys[t]) || pathDefaults[t];
+const getFromStorage = (t: FilePath): string => localStorage.getItem(filePathStorageKeys[t]) || pathDefaults[t];
 const getAllFromStorage = (): { [K in FilePath]: string } => {
     return {
         core: getFromStorage('core'),
@@ -39,6 +48,12 @@ export const initialState: State = {
 
     rimWorldVersion: null,
     rimwWorldVersionOverride: null,
+
+    modOverrides: (() => {
+        const item = localStorage.getItem(otherStorageKeys.modSourceOverrides);
+        if (item) return JSON.parse(item);
+        else return defaultModSourceOverrides;
+    })(),
 };
 
 const mainSlice = createSlice({
@@ -54,9 +69,9 @@ const mainSlice = createSlice({
 
             // only set local storage if different from default
             if (newPath !== pathDefaults[target]) {
-                localStorage.setItem(storageKeys[target], newPath);
+                localStorage.setItem(filePathStorageKeys[target], newPath);
             } else {
-                localStorage.removeItem(storageKeys[target]);
+                localStorage.removeItem(filePathStorageKeys[target]);
             }
         },
         setCurrentMod(state, { payload }: { payload: Mod<ModSource> | null }) {
@@ -68,26 +83,55 @@ const mainSlice = createSlice({
         setRimWorldVersionOverride(state, { payload }: { payload: number | null }) {
             state.rimwWorldVersionOverride = payload;
         },
+        setModOverrides(state, { payload }: { payload: { [index: PackageId]: ModSource } }) {
+            state.modOverrides = payload;
+
+            // only set local storage if different from default
+            let isDefault = true;
+            if (Object.keys(payload).length !== Object.keys(defaultModSourceOverrides).length) {
+                isDefault = false;
+            } else {
+                for (const packageId in defaultModSourceOverrides) {
+                    if (payload[packageId] !== defaultModSourceOverrides[packageId]) {
+                        isDefault = false;
+                        break;
+                    }
+                }
+            }
+
+            if (isDefault) localStorage.removeItem(otherStorageKeys.modSourceOverrides);
+            else localStorage.setItem(otherStorageKeys.modSourceOverrides, JSON.stringify(state.modOverrides));
+        },
     },
 });
 
-export const { setSettingsOpen, setFilePath, setCurrentMod, setRimWorldVersion, setRimWorldVersionOverride } =
-    mainSlice.actions;
+export const {
+    setSettingsOpen,
+    setFilePath,
+    setCurrentMod,
+    setRimWorldVersion,
+    setRimWorldVersionOverride,
+    setModOverrides,
+} = mainSlice.actions;
 
 export const getSettingsOpen = (state: StoreState) => state.main.settingsOpen;
 export const getFilePaths = (state: StoreState) => state.main.filePaths;
 export const getCurrentMod = (state: StoreState) => state.main.currentMod;
 export const getRimWorldVersion = (state: StoreState) => state.main.rimWorldVersion;
 export const getRimWorldVersionOverride = (state: StoreState) => state.main.rimwWorldVersionOverride;
+export const getModOverrides = (state: StoreState) => state.main.modOverrides;
 
-export const loadMods = createAsyncThunk('main/loadMods', (target: ModSource, { getState, dispatch }) => {
+export const loadMods = createAsyncThunk('main/loadMods', (source: ModSource, { getState, dispatch }) => {
     const state = getState() as StoreState;
-    const path = getFilePaths(state)[target];
-    dispatch(removeFromLibraryBySource(target));
+    const path = getFilePaths(state)[source];
+    const modOverrides = getModOverrides(state);
+
+    dispatch(removeFromLibraryBySource(source));
     try {
-        const { mods } = window.api.modLoader(path, target);
+        const { mods } = window.api.modLoader(path, source);
         for (const mod of mods) {
-            dispatch(addToLibrary(mod));
+            const source = modOverrides[mod.packageId.toLowerCase()] || mod.source;
+            dispatch(addToLibrary({ ...mod, source }));
         }
     } catch (error) {
         console.log(error);
@@ -119,24 +163,92 @@ export const initialLoad = createAsyncThunk('main/initialLoad', (_, { getState, 
     dispatch(loadModList());
 });
 
-export const checkFilePathsChanged = createAsyncThunk(
-    'main/checkFilePathsChanged',
-    (oldValues: State['filePaths'], { getState, dispatch }) => {
+interface HandleSettingsCloseArgs {
+    oldFilePaths: State['filePaths'];
+    oldModOverrides: State['modOverrides'];
+}
+
+/** Checking changes in settings once it closes, so we know when to run
+ * any expensive tasks.
+ */
+export const handleSettingsClose = createAsyncThunk(
+    'main/handleSettingsClose',
+    (args: HandleSettingsCloseArgs, { getState, dispatch }) => {
+        const { oldFilePaths, oldModOverrides } = args;
         const state = getState() as StoreState;
-        const newValues = getFilePaths(state);
+        const newFilePaths = getFilePaths(state);
+        const newModOverrides = getModOverrides(state);
+        const modLibrary = getModLibrary(state);
 
-        // modlist should be reloaded when files change
         let reloadModList = false;
+        const modSourcesToReload: ModSource[] = [];
+        const specificModsToReload: Set<Mod<ModSource>> = new Set();
 
-        for (const valueName in newValues) {
-            const k = valueName as FilePath;
-            if (newValues[k] !== oldValues[k]) {
-                reloadModList = true;
-                if (k !== 'modlist') dispatch(loadMods(k as ModSource));
+        // checking if file paths changed
+        for (const k in newFilePaths) {
+            const filePath = k as FilePath;
+            if (newFilePaths[filePath] !== oldFilePaths[filePath]) {
+                if (filePath === 'modlist') reloadModList = true;
+                else modSourcesToReload.push(filePath as ModSource);
             }
         }
 
-        if (reloadModList) dispatch(loadModList());
+        // checking if mod overrides have changed
+        {
+            const checkedOldValues = Object.keys(oldModOverrides) as PackageId[];
+            for (const packageId in newModOverrides) {
+                if (oldModOverrides[packageId]) {
+                    // if value is present in both old and new
+
+                    checkedOldValues.splice(checkedOldValues.indexOf(packageId), 1);
+                    const oldSource: ModSource = oldModOverrides[packageId];
+                    const newSource: ModSource = newModOverrides[packageId];
+                    if (newSource !== oldSource) {
+                        // if the value has changed, and a mod for that package id exists
+                        const mod = modLibrary[packageId.toLowerCase()];
+                        if (mod) specificModsToReload.add(mod);
+                    }
+                } else {
+                    // value must only be present in new
+                    const mod = modLibrary[packageId.toLowerCase()];
+                    console.log(`new ${packageId} (mod: ${!!mod})`);
+                    if (mod) specificModsToReload.add(mod);
+                }
+            }
+            // now check old values that are not in new (aka were not spliced)
+            checkedOldValues.forEach((packageId) => {
+                const mod = modLibrary[packageId.toLowerCase()];
+                if (mod) specificModsToReload.add(mod);
+            });
+        }
+
+        /// reloding
+
+        if (modSourcesToReload.length) {
+            for (const source of modSourcesToReload) {
+                dispatch(loadMods(source));
+                specificModsToReload.forEach((mod) => {
+                    // we've just reloaded ALL mods from this source,
+                    // so we no longer need to reload specific mods
+                    // of the same source
+                    if (mod.source === source) specificModsToReload.delete(mod);
+                });
+            }
+        }
+
+        if (specificModsToReload.size) {
+            specificModsToReload.forEach((mod) => {
+                if (newModOverrides[mod.packageId.toLowerCase()]) {
+                    dispatch(addToLibrary({ ...mod, source: newModOverrides[mod.packageId.toLowerCase()] }));
+                } else {
+                    dispatch(addToLibrary({ ...mod, source: mod.originalSource }));
+                }
+            });
+        }
+
+        if (reloadModList) {
+            dispatch(loadModList());
+        }
     },
 );
 

@@ -108,6 +108,7 @@ export interface Mod<T extends ModSource> {
     forceLoadAfter: PackageId[];
 
     source: ModSource;
+    originalSource: ModSource;
 }
 
 export interface WorkshopMod extends Mod<'workshop'> {

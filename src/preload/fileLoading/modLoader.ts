@@ -75,6 +75,7 @@ interface ModInfoResponse {
     aboutFileContents: string;
     previewImage?: string;
 }
+
 function getModInfo(filePath: string, name: string, meta: LoadOperationMeta): ModInfoResponse | null {
     try {
         let fullPath = join(filePath, name);
@@ -238,6 +239,7 @@ function formatRawData<T extends ModSource>(
         forceLoadBefore: rawData?.forceLoadBefore ? u2a(rawData.forceLoadBefore) : [],
         forceLoadAfter: rawData?.forceLoadAfter ? u2a(rawData.forceLoadAfter) : [],
         source,
+        originalSource: source,
         previewImage: previewImage || null,
     };
 

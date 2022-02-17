@@ -42,7 +42,7 @@ const modManagerSlice = createSlice({
         removeFromLibraryBySource(state, { payload }: { payload: ModSource }) {
             for (const packageId in state.modLibrary) {
                 const mod = state.modLibrary[packageId];
-                if (mod.source === payload) {
+                if (mod.originalSource === payload) {
                     delete state.modLibrary[packageId];
                 }
             }

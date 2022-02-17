@@ -1,34 +1,34 @@
 import { Container, Divider, Stack, Typography } from '@mui/material';
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { checkFilePathsChanged, getFilePaths } from '../../redux/slices/main.slice';
+import { getFilePaths, getModOverrides, getSettingsOpen, handleSettingsClose } from '../../redux/slices/main.slice';
 import FilePath from './FilePaths';
+import ModSourceOverrideTable from './ModSourceOverrideTable';
 import VersionOverride from './VersionOverride';
 
 const SettingsPage = () => {
     const dispatch = useDispatch();
-    const filePaths = useSelector(getFilePaths);
+    const oldFilePaths = useSelector(getFilePaths);
+    const oldModOverrides = useSelector(getModOverrides);
 
     useEffect(() => {
         return () => {
-            dispatch(checkFilePathsChanged(filePaths));
+            dispatch(handleSettingsClose({ oldFilePaths, oldModOverrides }));
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [dispatch]);
 
     return (
-        <Container
-            sx={{ position: 'fixed', backgroundColor: '#272727', height: '100%', zIndex: '1', left: 0 }}
-            maxWidth={false}
-        >
+        <>
             <Typography variant="h2" textAlign="center" gutterBottom>
                 Settings
             </Typography>
             <Stack spacing={4} divider={<Divider flexItem />}>
                 <FilePath />
                 <VersionOverride />
+                <ModSourceOverrideTable />
             </Stack>
-        </Container>
+        </>
     );
 };
 

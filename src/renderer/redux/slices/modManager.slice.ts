@@ -59,7 +59,7 @@ const modManagerSlice = createSlice({
          */
         addToModList(state, { payload }: { payload: { packageId: PackageId; index?: number } }) {
             const packageId = payload.packageId.toLowerCase();
-            const { index } = payload;
+            const index = payload.index;
 
             const mod = state.modLibrary[packageId];
 

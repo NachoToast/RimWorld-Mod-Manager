@@ -1,5 +1,5 @@
-import { Stack, Fade, Tooltip, Button, Typography, TextField, Slide } from '@mui/material';
-import React, { useEffect, useMemo, useState } from 'react';
+import { Stack, Tooltip, Button, Typography, TextField, Slide } from '@mui/material';
+import React, { useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { pathDefaults } from '../../constants/constants';
 import ConstructionIcon from '@mui/icons-material/Construction';
@@ -15,8 +15,6 @@ import { Box } from '@mui/system';
 const PathDialogue = ({ type }: { type: FilePath }) => {
     const dispatch = useDispatch();
     const filePaths = useSelector(getFilePaths);
-
-    const [isHovered, setIsHovered] = useState(false);
 
     useEffect(() => {
         const closeOnEscape = (e: KeyboardEvent) => {
@@ -64,11 +62,7 @@ const PathDialogue = ({ type }: { type: FilePath }) => {
     };
 
     return (
-        <Box
-            sx={{ display: 'flex', flexWrap: 'nowrap', alignItems: 'center' }}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-        >
+        <Box sx={{ display: 'flex', flexWrap: 'nowrap', alignItems: 'center' }}>
             <TextField
                 autoCorrect="off"
                 autoComplete="off"
@@ -84,22 +78,20 @@ const PathDialogue = ({ type }: { type: FilePath }) => {
                 fullWidth
                 value={filePaths[type]}
             />
-            <Fade in={isHovered}>
-                <Stack direction="row-reverse">
-                    <Slide direction="left" in={canReset}>
-                        <Tooltip title="Reset to Default">
-                            <Button onClick={handleReset}>
-                                <RestartAltIcon color="error" />
-                            </Button>
-                        </Tooltip>
-                    </Slide>
-                    <Tooltip title="Open in Folder">
-                        <Button onClick={handleOpenInFolder}>
-                            <FolderOpenIcon />
+            <Stack direction="row-reverse">
+                <Slide direction="left" in={canReset}>
+                    <Tooltip title="Reset to Default">
+                        <Button onClick={handleReset}>
+                            <RestartAltIcon color="error" />
                         </Button>
                     </Tooltip>
-                </Stack>
-            </Fade>
+                </Slide>
+                <Tooltip title="Open in Folder" placement="left">
+                    <Button onClick={handleOpenInFolder}>
+                        <FolderOpenIcon />
+                    </Button>
+                </Tooltip>
+            </Stack>
         </Box>
     );
 };

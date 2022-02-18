@@ -1,7 +1,7 @@
-import { Container, Divider, Stack, Typography } from '@mui/material';
+import { Divider, Stack, Typography } from '@mui/material';
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { getFilePaths, getModOverrides, getSettingsOpen, handleSettingsClose } from '../../redux/slices/main.slice';
+import { getFilePaths, getModOverrides, handleSettingsClose } from '../../redux/slices/main.slice';
 import FilePath from './FilePaths';
 import ModSourceOverrideTable from './ModSourceOverrideTable';
 import VersionOverride from './VersionOverride';

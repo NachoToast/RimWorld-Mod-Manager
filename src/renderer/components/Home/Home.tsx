@@ -1,4 +1,4 @@
-import { Container, Grid, Grow, Typography } from '@mui/material';
+import { Grid, Grow, Typography } from '@mui/material';
 import React from 'react';
 import ActiveModList from '../ModLists/ActiveModList';
 import ModLists from '../ModLists/ModLists';

@@ -1,9 +1,8 @@
-import { IconButton, ListItem, ListItemButton, ListItemText, Tooltip } from '@mui/material';
+import { Checkbox, IconButton, ListItem, ListItemButton, ListItemIcon, ListItemText, Tooltip } from '@mui/material';
 import React, { useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getCurrentMod, setCurrentMod } from '../../redux/slices/main.slice';
 import { Mod, ModSource, PackageId } from '../../../types/ModFiles';
-import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import { addToModList, getModList, removeFromModList } from '../../redux/slices/modManager.slice';
 
@@ -50,7 +49,6 @@ const ModRow = (props: { index: number; style: React.CSSProperties; mod: Mod<Mod
     const dispatch = useDispatch();
     const currentMod = useSelector(getCurrentMod);
     const modList = useSelector(getModList);
-    const [isHovered, setIsHovered] = useState(false);
 
     const { index, style, mod } = props;
 
@@ -64,6 +62,7 @@ const ModRow = (props: { index: number; style: React.CSSProperties; mod: Mod<Mod
 
     const handleAddToList = (e: React.MouseEvent) => {
         e.preventDefault();
+        e.stopPropagation();
         if (isInModList) dispatch(removeFromModList(mod.packageId));
         else dispatch(addToModList({ packageId: mod.packageId }));
     };
@@ -75,17 +74,17 @@ const ModRow = (props: { index: number; style: React.CSSProperties; mod: Mod<Mod
             component="div"
             disablePadding
             sx={{ whiteSpace: 'nowrap', overflow: 'hidden' }}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-            secondaryAction={
-                isHovered && (
-                    <Tooltip title={isInModList ? 'Remove from list' : 'Add to list'} placement="left">
-                        <IconButton onClick={handleAddToList}>{isInModList ? <RemoveIcon /> : <AddIcon />}</IconButton>
-                    </Tooltip>
-                )
-            }
         >
             <ListItemButton sx={{ maxWidth: '100%' }} onClick={handleClick}>
+                <ListItemIcon>
+                    <Checkbox
+                        disableRipple
+                        tabIndex={-1}
+                        edge="start"
+                        checked={isInModList}
+                        onClick={handleAddToList}
+                    />
+                </ListItemIcon>
                 <ListItemText primary={mod.name} />
             </ListItemButton>
         </ListItem>

@@ -8,11 +8,13 @@ import LinkIcon from '../Util/LinkIcon';
 import OpenIcon from '../Util/OpenIcon';
 import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 import JsonIcon from '../Util/JsonIcon';
+import { ConfigOptions, getConfig } from '../../redux/slices/config.slice';
 
 const ModPreview = () => {
     const mod = useSelector(getCurrentMod);
+    const config = useSelector(getConfig);
 
-    const [rawMode, setRawMode] = useState<boolean>(false);
+    const [rawMode, setRawMode] = useState<boolean>(config[ConfigOptions.RawJsonPreviewDefault]);
 
     const handleToggleRawMode = () => {
         setRawMode(!rawMode);
@@ -44,7 +46,9 @@ const ModPreview = () => {
                     {mod.url && <LinkIcon link={mod.url} />}
                     {mod.steamWorkshopURL && <LinkIcon link={mod.steamWorkshopURL} />}
                     <OpenIcon icon={<FolderOpenIcon />} title="Open mod folder" link={mod.folderPath} />
-                    <JsonIcon callback={handleToggleRawMode} open={rawMode} />
+                    {config[ConfigOptions.ViewRawPreviewButton] && (
+                        <JsonIcon callback={handleToggleRawMode} open={rawMode} />
+                    )}
                 </Stack>
             </Stack>
         );
@@ -79,7 +83,10 @@ const ModPreview = () => {
                 {mod.url && <LinkIcon link={mod.url} />}
                 {mod.steamWorkshopURL && <LinkIcon link={mod.steamWorkshopURL} />}
                 <OpenIcon icon={<FolderOpenIcon />} title="Open mod folder" link={mod.folderPath} />
-                <JsonIcon callback={handleToggleRawMode} open={rawMode} />
+
+                {config[ConfigOptions.ViewRawPreviewButton] && (
+                    <JsonIcon callback={handleToggleRawMode} open={rawMode} />
+                )}
             </Stack>
         </Stack>
     );

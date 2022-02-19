@@ -15,7 +15,7 @@ export const UnknownModRow = (props: { index: number; style: React.CSSProperties
     const { index, style, packageId } = props;
     const handleRemoveFromList = (e: React.MouseEvent) => {
         e.preventDefault();
-        dispatch(removeFromModList(packageId));
+        dispatch(removeFromModList([packageId]));
     };
 
     return (
@@ -62,8 +62,8 @@ const ModRow = (props: { index: number; style: React.CSSProperties; mod: Mod<Mod
     const handleAddToList = (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
-        if (isInModList) dispatch(removeFromModList(mod.packageId));
-        else dispatch(addToModList({ packageId: mod.packageId }));
+        if (isInModList) dispatch(removeFromModList([mod.packageId]));
+        else dispatch(addToModList({ packageIds: [mod.packageId] }));
     };
 
     return (

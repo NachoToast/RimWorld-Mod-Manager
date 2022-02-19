@@ -166,9 +166,7 @@ export const loadModList = createAsyncThunk('main/loadModList', (_, { getState, 
     try {
         const { activeMods, version } = window.api.listLoader(path);
         dispatch(setRimWorldVersion(version));
-        for (const packageId of activeMods) {
-            dispatch(addToModList({ packageId }));
-        }
+        dispatch(addToModList({ packageIds: activeMods }));
     } catch (error) {
         console.log(error);
     }

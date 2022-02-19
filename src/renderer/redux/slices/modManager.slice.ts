@@ -51,42 +51,48 @@ const modManagerSlice = createSlice({
                 }
             }
         },
-        /** Adds a mod from the library the the modlist, selected via packageId.
+        /** Adds an array of mods from the library the the modlist, selected via package ID.
          *
-         * If the mod isn't in the library, the packageId will still be added,
+         * If a mod isn't in the library, it will still be added,
          * however the lookup table will have no entry.
          *
-         * If the mod is already in the modlist, nothing will be done.
+         * If a mod is already in the modlist, nothing will change.
          *
-         * @param {number} [index] The position to put this mod in the list,
-         * if ommitted, will put at the end of the modlist.
+         * @param {number} [index] The position start inserting mods into the modlist at.
+         * If ommitted, will append to the existing modlist.
          */
-        addToModList(state, { payload }: { payload: { packageId: PackageId; index?: number } }) {
-            const packageId = payload.packageId.toLowerCase();
-            const index = payload.index;
+        addToModList(state, { payload }: { payload: { packageIds: PackageId[]; index?: number } }) {
+            let index = payload.index;
+            for (const id of payload.packageIds) {
+                const packageId = id.toLowerCase();
 
-            const mod = state.modLibrary[packageId];
+                const mod = state.modLibrary[packageId];
 
-            // if package id not in list yet, add it
-            if (state.modList.packageIds.indexOf(packageId) === -1) {
-                if (index) state.modList.packageIds.splice(index, 0, packageId);
-                else state.modList.packageIds.push(packageId);
+                // if package id not in list yet, add it
+                if (state.modList.packageIds.indexOf(packageId) === -1) {
+                    if (index) {
+                        state.modList.packageIds.splice(index, 0, packageId);
+                        index++;
+                    } else state.modList.packageIds.push(packageId);
+                }
+
+                if (mod) state.modList.lookup[packageId] = mod;
+                else console.warn(`Failed to find mod with PackageId %c${packageId}`, 'color: lightcoral');
             }
-
-            if (mod) state.modList.lookup[packageId] = mod;
-            else console.warn(`Failed to find mod with PackageId %c${packageId}`, 'color: lightcoral');
         },
         clearModList(state) {
             state.modList.lookup = {};
             state.modList.packageIds = [];
         },
-        /** Removes a mod from the mod list that has the specified PackageId. */
-        removeFromModList(state, { payload }: { payload: PackageId }) {
-            const packageId = payload.toLowerCase();
-            delete state.modList.lookup[packageId];
-            const index = state.modList.packageIds.indexOf(packageId);
-            if (index !== -1) {
-                state.modList.packageIds.splice(index, 1);
+        /** Removes an array of mods from the mod list that have the specified Package ID. */
+        removeFromModList(state, { payload }: { payload: PackageId[] }) {
+            for (const id of payload) {
+                const packageId = id.toLowerCase();
+                delete state.modList.lookup[packageId];
+                const index = state.modList.packageIds.indexOf(packageId);
+                if (index !== -1) {
+                    state.modList.packageIds.splice(index, 1);
+                }
             }
         },
         /** Sets mods with the specified package IDs to hidden,

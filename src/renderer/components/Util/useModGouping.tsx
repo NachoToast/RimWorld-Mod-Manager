@@ -8,6 +8,7 @@ import FolderIcon from '@mui/icons-material/Folder';
 import PersonIcon from '@mui/icons-material/Person';
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import ScienceIcon from '@mui/icons-material/Science';
+import CloudIcon from '@mui/icons-material/Cloud';
 import { getModLibrary } from '../../redux/slices/modManager.slice';
 
 export interface GroupedMods<T extends ModSource> {
@@ -81,6 +82,7 @@ function alphabeticalGrouping(mods: ModList<ModSource>): GroupedMods<ModSource> 
 const customAuthorIcons: { [authorName: string]: JSX.Element } = {
     'Ludeon Studios': <PublicIcon />,
     Owlchemist: <ScienceIcon />,
+    VanillaSky: <CloudIcon />,
 };
 
 /** Groups mods by author, mods by multiple authors will appear more than once. */

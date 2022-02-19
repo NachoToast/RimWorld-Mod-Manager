@@ -23,4 +23,5 @@ export const defaultModSourceOverrides: { [index: PackageId]: ModSource } = {
 
 export const otherStorageKeys = {
     modSourceOverrides: 'modSourceOverrides',
+    modGrouping: 'modGrouping',
 };

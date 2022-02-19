@@ -68,7 +68,7 @@ export const initialState: State = {
         else return defaultModSourceOverrides;
     })(),
 
-    modGrouping: 'source',
+    modGrouping: (localStorage.getItem(otherStorageKeys.modGrouping) as GroupingOptions) || 'source',
 };
 
 const mainSlice = createSlice({
@@ -120,6 +120,8 @@ const mainSlice = createSlice({
         },
         setModGrouping(state, { payload }: { payload: State['modGrouping'] }) {
             state.modGrouping = payload;
+            if (payload !== 'source') localStorage.setItem(otherStorageKeys.modGrouping, payload);
+            else localStorage.removeItem(otherStorageKeys.modGrouping);
         },
     },
 });

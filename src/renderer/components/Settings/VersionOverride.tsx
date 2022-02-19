@@ -1,5 +1,4 @@
-import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, Typography } from '@mui/material';
-import { Box } from '@mui/system';
+import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent } from '@mui/material';
 import React, { useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -30,10 +29,6 @@ const VersionOverride = () => {
     }, [version?.major, versionOverride]);
 
     return (
-        // <Box>
-        // {/* <Typography variant="h5" gutterBottom>
-        //     RimWorld Version
-        // </Typography> */}
         <FormControl>
             <InputLabel id="override-select-label">Version</InputLabel>
             <Select
@@ -50,7 +45,6 @@ const VersionOverride = () => {
                 ))}
             </Select>
         </FormControl>
-        // </Box>
     );
 };
 

@@ -1,21 +1,19 @@
 import { createSlice } from '@reduxjs/toolkit';
 import StoreState from '../state';
 
-export enum ConfigOptionNameProps {
+export enum ConfigOptions {
     ViewRawPreviewButton = 'viewRawPreviewButton',
     RawJsonPreviewDefault = 'rawJsonPreviewDefault',
 }
 
 export interface State {
-    [ConfigOptionNameProps.ViewRawPreviewButton]: boolean;
-    [ConfigOptionNameProps.RawJsonPreviewDefault]: boolean;
+    [ConfigOptions.ViewRawPreviewButton]: boolean;
+    [ConfigOptions.RawJsonPreviewDefault]: boolean;
 }
 
 export const initialState: State = {
-    [ConfigOptionNameProps.ViewRawPreviewButton]:
-        !!localStorage.getItem(ConfigOptionNameProps.ViewRawPreviewButton) || false,
-    [ConfigOptionNameProps.RawJsonPreviewDefault]:
-        !!localStorage.getItem(ConfigOptionNameProps.RawJsonPreviewDefault) || false,
+    [ConfigOptions.ViewRawPreviewButton]: !!localStorage.getItem(ConfigOptions.ViewRawPreviewButton) || false,
+    [ConfigOptions.RawJsonPreviewDefault]: !!localStorage.getItem(ConfigOptions.RawJsonPreviewDefault) || false,
 };
 
 const configSlice = createSlice({
@@ -25,8 +23,9 @@ const configSlice = createSlice({
         /** In future if this slice gets bigger we will need to group config options into booleans, strings, etc..
          * But for now this is fine.
          */
-        setOption(state, { payload }: { payload: { key: ConfigOptionNameProps; value: boolean } }) {
+        setOption(state, { payload }: { payload: { key: ConfigOptions; value: boolean } }) {
             const { key, value } = payload;
+            console.log(`setting ${key} to ${value}`);
             state[key] = value;
             if (value) localStorage.setItem(key, 'yeet');
             // value doesn't matter, as long as its truthy

@@ -43,7 +43,12 @@ const Toolbar = () => {
     }, [search, searchTerm]);
 
     return (
-        <Stack direction="row" spacing={1} justifyContent="flex-end">
+        <Stack
+            direction="row"
+            spacing={1}
+            justifyContent="flex-end"
+            sx={{ position: 'sticky', top: 0, zIndex: 1, bgcolor: '#272727' }}
+        >
             <TextField
                 id="searchInput"
                 sx={{ flexGrow: 1 }}
@@ -54,6 +59,7 @@ const Toolbar = () => {
                     const { value } = e.target as HTMLTextAreaElement;
                     setSearchTerm(value);
                 }}
+                InputProps={{ disableUnderline: true }}
             />
             <Button disabled={!searchTerm} onClick={search}>
                 <SearchIcon />

@@ -220,7 +220,7 @@ function formatRawData<T extends ModSource>(
 ): Mod<T> {
     const output: Mod<T> = {
         name: rawData.name || folderName,
-        authors: rawData.author.split(','),
+        authors: rawData.author.split(/,|\sand\s/g).map((e) => e.trim()),
         packageId: rawData.packageId,
         supportedVersions: u2a(rawData.supportedVersions),
         folderName,

@@ -30,27 +30,27 @@ const VersionOverride = () => {
     }, [version?.major, versionOverride]);
 
     return (
-        <Box>
-            <Typography variant="h5" gutterBottom>
-                RimWorld Version
-            </Typography>
-            <FormControl>
-                <InputLabel id="override-select-label">Version</InputLabel>
-                <Select
-                    labelId="override-select-label"
-                    value={value}
-                    label="Version"
-                    onChange={handleChange}
-                    sx={{ minWidth: '135px' }}
-                >
-                    {possibleVersions.map((v, index) => (
-                        <MenuItem key={index} value={v}>
-                            {v === version?.major ? `${v} (default)` : v}
-                        </MenuItem>
-                    ))}
-                </Select>
-            </FormControl>
-        </Box>
+        // <Box>
+        // {/* <Typography variant="h5" gutterBottom>
+        //     RimWorld Version
+        // </Typography> */}
+        <FormControl>
+            <InputLabel id="override-select-label">Version</InputLabel>
+            <Select
+                labelId="override-select-label"
+                value={value}
+                label="Version"
+                onChange={handleChange}
+                sx={{ minWidth: '135px' }}
+            >
+                {possibleVersions.map((v, index) => (
+                    <MenuItem key={index} value={v}>
+                        {v === version?.major ? `${v} (default)` : v}
+                    </MenuItem>
+                ))}
+            </Select>
+        </FormControl>
+        // </Box>
     );
 };
 

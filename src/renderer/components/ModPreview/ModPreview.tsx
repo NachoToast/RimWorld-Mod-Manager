@@ -1,5 +1,5 @@
 import { Stack, Typography } from '@mui/material';
-import React from 'react';
+import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { getCurrentMod } from '../../redux/slices/main.slice';
 import PlagiarismIcon from '@mui/icons-material/Plagiarism';
@@ -7,9 +7,16 @@ import { Mod, ModSource } from '../../../types/ModFiles';
 import LinkIcon from '../Util/LinkIcon';
 import OpenIcon from '../Util/OpenIcon';
 import FolderOpenIcon from '@mui/icons-material/FolderOpen';
+import JsonIcon from '../Util/JsonIcon';
 
 const ModPreview = () => {
     const mod = useSelector(getCurrentMod);
+
+    const [rawMode, setRawMode] = useState<boolean>(false);
+
+    const handleToggleRawMode = () => {
+        setRawMode(!rawMode);
+    };
 
     if (!mod)
         return (
@@ -26,6 +33,19 @@ const ModPreview = () => {
                 <Typography variant="h5" color="gray">
                     Select a mod to preview
                 </Typography>
+            </Stack>
+        );
+
+    if (rawMode)
+        return (
+            <Stack height={800} sx={{ overflowY: 'auto' }}>
+                <pre>{JSON.stringify(mod, undefined, 4)}</pre>
+                <Stack direction="row">
+                    {mod.url && <LinkIcon link={mod.url} />}
+                    {mod.steamWorkshopURL && <LinkIcon link={mod.steamWorkshopURL} />}
+                    <OpenIcon icon={<FolderOpenIcon />} title="Open mod folder" link={mod.folderPath} />
+                    <JsonIcon callback={handleToggleRawMode} open={rawMode} />
+                </Stack>
             </Stack>
         );
 
@@ -59,6 +79,7 @@ const ModPreview = () => {
                 {mod.url && <LinkIcon link={mod.url} />}
                 {mod.steamWorkshopURL && <LinkIcon link={mod.steamWorkshopURL} />}
                 <OpenIcon icon={<FolderOpenIcon />} title="Open mod folder" link={mod.folderPath} />
+                <JsonIcon callback={handleToggleRawMode} open={rawMode} />
             </Stack>
         </Stack>
     );

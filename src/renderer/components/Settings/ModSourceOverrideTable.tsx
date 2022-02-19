@@ -1,9 +1,7 @@
 import {
     Button,
     Fade,
-    IconButton,
     MenuItem,
-    Paper,
     Select,
     SelectChangeEvent,
     Slide,
@@ -16,7 +14,6 @@ import {
     TableRow,
     TextField,
     Tooltip,
-    Typography,
 } from '@mui/material';
 import { Box } from '@mui/system';
 import React, { useEffect, useMemo, useState } from 'react';
@@ -70,8 +67,6 @@ const ModSourceOverrideTable = () => {
         dispatch(setModOverrides(newOverrides));
     };
 
-    const [isHovered, setIsHovered] = useState(false);
-
     const [creatingRow, setCreatingRow] = useState(false);
     const [newPackageId, setNewPackageId] = useState('');
     const [newSource, setNewSource] = useState<ModSource>('core');
@@ -96,27 +91,24 @@ const ModSourceOverrideTable = () => {
     };
 
     return (
-        <Box onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
-            <Stack direction="row" justifyContent="space-between">
-                <Typography variant="h5" gutterBottom>
-                    Mod Version Overrides
-                    <Fade in={isHovered && !creatingRow}>
-                        <IconButton onClick={() => setCreatingRow(true)}>
-                            <AddIcon />
-                        </IconButton>
-                    </Fade>
-                </Typography>
-                <Fade in={isHovered}>
-                    <Slide direction="left" in={!isDefault}>
-                        <Tooltip title="Reset to Default">
-                            <Button onClick={reset}>
-                                <RestartAltIcon color="error" />
-                            </Button>
-                        </Tooltip>
-                    </Slide>
-                </Fade>
+        <Box>
+            <Stack direction="row" spacing={1}>
+                <Slide direction="right" in={!creatingRow}>
+                    <Tooltip title="New Row">
+                        <Button onClick={() => setCreatingRow(true)}>
+                            <AddIcon fontSize="large" color="success" />
+                        </Button>
+                    </Tooltip>
+                </Slide>
+                <Slide direction="right" in={!isDefault}>
+                    <Tooltip title="Reset to Default">
+                        <Button onClick={reset}>
+                            <RestartAltIcon color="error" fontSize="large" />
+                        </Button>
+                    </Tooltip>
+                </Slide>
             </Stack>
-            <TableContainer component={Paper}>
+            <TableContainer>
                 <Table>
                     <TableHead>
                         <TableRow>
@@ -135,7 +127,7 @@ const ModSourceOverrideTable = () => {
 
                             return (
                                 <Fade in key={index}>
-                                    <TableRow key={index}>
+                                    <TableRow>
                                         <TableCell component="th" scope="row">
                                             <Stack>
                                                 <Stack direction="row" alignItems="center" spacing={1}>

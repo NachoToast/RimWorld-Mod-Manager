@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import SearchIcon from '@mui/icons-material/Search';
 import CategoryIcon from '@mui/icons-material/Category';
 import { Button, Fade, FormControl, InputLabel, MenuItem, Select, Stack, TextField, Tooltip } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
-import { getModGrouping, GroupingOptions, setModGrouping } from '../../redux/slices/main.slice';
+import { getModGrouping, GroupingOptions, searchMods, setModGrouping } from '../../redux/slices/main.slice';
 
 const groupingOptions: GroupingOptions[] = ['none', 'source', 'alphabetical', 'author'];
 
@@ -15,10 +15,15 @@ const Toolbar = () => {
 
     const [searchTerm, setSearchTerm] = useState<string>('');
 
+    const search = useCallback(() => {
+        dispatch(searchMods(searchTerm));
+    }, [dispatch, searchTerm]);
+
     useEffect(() => {
         function searchOnEnter(e: KeyboardEvent) {
             if (e.key === 'Enter') {
-                console.log('searching!');
+                e.preventDefault();
+                search();
             }
         }
 
@@ -29,7 +34,7 @@ const Toolbar = () => {
         return () => {
             window.removeEventListener('keydown', searchOnEnter);
         };
-    }, [searchTerm]);
+    }, [search, searchTerm]);
 
     return (
         <Stack direction="row" spacing={1} justifyContent="flex-end">
@@ -44,7 +49,7 @@ const Toolbar = () => {
                     setSearchTerm(value);
                 }}
             />
-            <Button disabled={!searchTerm} onClick={() => console.log('searching!')}>
+            <Button disabled={!searchTerm} onClick={search}>
                 <SearchIcon />
             </Button>
             <Tooltip title="Filter Mods">

@@ -8,7 +8,14 @@ import {
     otherStorageKeys,
 } from '../../constants/constants';
 import StoreState from '../state';
-import { addToLibrary, addToModList, clearModList, getModLibrary, removeFromLibraryBySource } from './modManager.slice';
+import {
+    addToLibrary,
+    addToModList,
+    clearModList,
+    getModLibrary,
+    removeFromLibraryBySource,
+    setHidden,
+} from './modManager.slice';
 
 export type ErrorString = string;
 export type GroupingOptions = 'source' | 'none' | 'author' | 'alphabetical';
@@ -265,5 +272,31 @@ export const handleSettingsClose = createAsyncThunk(
         }
     },
 );
+
+export const searchMods = createAsyncThunk('main/searchMods', (searchTerm: string, { getState, dispatch }) => {
+    const state = getState() as StoreState;
+
+    const modLibrary = getModLibrary(state);
+
+    const hiddenMods = new Set(Object.keys(modLibrary));
+
+    const searchTerms = searchTerm.toLowerCase().split(/\s/g);
+    for (const packageId in modLibrary) {
+        const mod = modLibrary[packageId];
+        const desc = mod.description.toLowerCase();
+        const authors = mod.authors.join(', ');
+
+        let match = false;
+        if (searchTerms.some((term) => desc.includes(term))) match = true;
+        else if (searchTerms.some((term) => authors.includes(term))) match = true;
+        else if (searchTerms.some((term) => packageId.includes(term))) match = true;
+
+        if (match) {
+            hiddenMods.delete(packageId);
+        }
+    }
+
+    dispatch(setHidden(Array.from(hiddenMods)));
+});
 
 export default mainSlice.reducer;

@@ -273,7 +273,12 @@ export const handleSettingsClose = createAsyncThunk(
     },
 );
 
-export const searchMods = createAsyncThunk('main/searchMods', (searchTerm: string, { getState, dispatch }) => {
+export const searchMods = createAsyncThunk('main/searchMods', (searchTerm: string | false, { getState, dispatch }) => {
+    if (!searchTerm) {
+        dispatch(setHidden([]));
+        return;
+    }
+
     const state = getState() as StoreState;
 
     const modLibrary = getModLibrary(state);

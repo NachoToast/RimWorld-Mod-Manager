@@ -15,6 +15,12 @@ const Toolbar = () => {
 
     const [searchTerm, setSearchTerm] = useState<string>('');
 
+    useEffect(() => {
+        if (!searchTerm) {
+            dispatch(searchMods(false));
+        }
+    }, [dispatch, searchTerm]);
+
     const search = useCallback(() => {
         dispatch(searchMods(searchTerm));
     }, [dispatch, searchTerm]);

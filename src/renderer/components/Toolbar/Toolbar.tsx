@@ -59,7 +59,6 @@ const Toolbar = () => {
                     const { value } = e.target as HTMLTextAreaElement;
                     setSearchTerm(value);
                 }}
-                InputProps={{ disableUnderline: true }}
             />
             <Button disabled={!searchTerm} onClick={search}>
                 <SearchIcon />

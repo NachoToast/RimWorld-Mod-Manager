@@ -9,7 +9,7 @@ const ModLists = () => {
     const groupedMods = useModGrouping();
 
     return (
-        <Box height={800} sx={{ overflowY: 'auto' }}>
+        <Box height={800} sx={{ overflowY: 'auto', scrollbarGutter: 'stable' }}>
             <Toolbar />
             {groupedMods.length === 1 ? (
                 <VirtualModList mods={groupedMods[0].mods} />

@@ -64,7 +64,7 @@ const ModPreview = () => {
                     {mod.packageId}
                 </Typography>
             </Stack>
-            <img src={mod.previewImage || undefined} style={{ maxWidth: '100%', alignSelf: 'center' }} />
+            <img src={mod.previewImages.at(0)} style={{ maxWidth: '100%', alignSelf: 'center' }} />
             <Stack direction="column">
                 {Object.keys(mod)
                     .filter(

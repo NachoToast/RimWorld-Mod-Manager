@@ -89,12 +89,13 @@ export interface Mod<T extends ModSource> {
     name: string;
     authors: string[];
     packageId: PackageId;
-    previewImage: string | null;
+    previewImages: string[];
     supportedVersions: number[];
     folderName: string;
     folderPath: string;
     url: string | null;
     steamWorkshopURL: string | null;
+    steamWorkshopId: string | null;
     description: string;
     modDependencies: ModDependency[];
     loadAfter: PackageId[];
@@ -114,16 +115,19 @@ export interface Mod<T extends ModSource> {
 
 export interface WorkshopMod extends Mod<'workshop'> {
     steamWorkshopURL: string;
+    steamWorkshopId: string;
     source: 'workshop';
 }
 
 export interface LocalMod extends Mod<'local'> {
     steamWorkshopURL: null;
+    steamWorkshopId: null;
     source: 'local';
 }
 
 export interface CoreMod extends Mod<'core'> {
     steamWorkshopURL: null;
+    steamWorkshopId: null;
 
     /** Expansions have a Steam app ID, base RimWorld does not. */
     steamAppId: number | null;

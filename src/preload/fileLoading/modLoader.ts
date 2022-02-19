@@ -52,7 +52,7 @@ function main<T extends ModSource>(path: string, source: ModSource): { mods: Mod
         // verify mod file structure
         const modInfo = getModInfo(path, folder, meta);
         if (modInfo === null) continue;
-        const { aboutFileContents, previewImage } = modInfo;
+        const { aboutFileContents, previewImages, steamWorkshopId } = modInfo;
 
         // deserialize xml
         const document = xmlStringToDocument(aboutFileContents, folder, meta);
@@ -61,7 +61,15 @@ function main<T extends ModSource>(path: string, source: ModSource): { mods: Mod
         if (rawObject === null) continue;
 
         // format data
-        const modData = formatRawData<T>(folder, rawObject.ModMetaData, meta, source, path, previewImage);
+        const modData = formatRawData<T>(
+            folder,
+            rawObject.ModMetaData,
+            meta,
+            source,
+            path,
+            previewImages,
+            steamWorkshopId,
+        );
 
         mods.push(modData);
     }
@@ -73,7 +81,8 @@ export default main;
 
 interface ModInfoResponse {
     aboutFileContents: string;
-    previewImage?: string;
+    previewImages: string[];
+    steamWorkshopId: string | null;
 }
 
 function getModInfo(filePath: string, name: string, meta: LoadOperationMeta): ModInfoResponse | null {
@@ -92,8 +101,20 @@ function getModInfo(filePath: string, name: string, meta: LoadOperationMeta): Mo
         const subFiles = readdirSync(fullPath);
 
         const aboutFile = subFiles.find((name) => name.toLowerCase() === 'about.xml');
-        let previewImage = subFiles.find((name) => name.toLowerCase() === 'preview.png');
-        if (previewImage) previewImage = join(fullPath, previewImage);
+        const previewImages = subFiles
+            .filter((name) => name.toLowerCase().endsWith('.png'))
+            .map((image) => join(fullPath, image));
+        const publishedFileId = subFiles.find((name) => name.toLowerCase() === 'publishedfileid.txt');
+
+        let steamWorkshopId: string | null = null;
+        if (publishedFileId) {
+            try {
+                steamWorkshopId = readFileSync(join(fullPath, publishedFileId), 'utf-8');
+            } catch (error) {
+                if (error instanceof Error) meta.errors.push(error);
+                else meta.unknownErrors.push(error);
+            }
+        }
 
         if (!aboutFile) {
             meta.missingAboutXML.push(name);
@@ -105,7 +126,8 @@ function getModInfo(filePath: string, name: string, meta: LoadOperationMeta): Mo
 
         return {
             aboutFileContents,
-            previewImage,
+            previewImages,
+            steamWorkshopId,
         };
     } catch (error) {
         if (error instanceof Error) meta.errors.push(error);
@@ -218,7 +240,8 @@ function formatRawData<T extends ModSource>(
     meta: LoadOperationMeta,
     source: ModSource,
     path: string,
-    previewImage: string | undefined,
+    previewImages: string[],
+    steamWorkshopId: string | null,
 ): Mod<T> {
     const output: Mod<T> = {
         name: rawData.name || folderName,
@@ -228,8 +251,8 @@ function formatRawData<T extends ModSource>(
         folderName,
         folderPath: `${path}/${folderName}`,
         url: validateURL(meta, rawData.url),
-        steamWorkshopURL:
-            source === 'workshop' ? `https://steamcommunity.com/sharedfiles/filedetails/?id=${folderName}` : null,
+        steamWorkshopURL: source === 'workshop' ? `steam://url/CommunityFilePage/${steamWorkshopId}` : null,
+        steamWorkshopId: steamWorkshopId,
         description: rawData.description || 'No description.',
         modDependencies: rawData?.modDependencies ? u2a(rawData.modDependencies) : [],
         loadAfter: rawData?.loadAfter ? u2a(rawData.loadAfter) : [],
@@ -242,11 +265,15 @@ function formatRawData<T extends ModSource>(
         forceLoadAfter: rawData?.forceLoadAfter ? u2a(rawData.forceLoadAfter) : [],
         source,
         originalSource: source,
-        previewImage: previewImage || null,
+        previewImages,
         hidden: false,
     };
 
     if (source === 'core') (output as CoreMod).steamAppId = rawData?.steamAppId || null;
+    if (source === 'workshop' && output?.url?.includes('steamcommunity')) {
+        // some mods will have duplicate URLs
+        output.url = null;
+    }
 
     return output;
 }

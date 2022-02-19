@@ -20,7 +20,7 @@ const LinkIcon = ({ link }: { link: string }) => {
 
     return (
         <Tooltip title={title}>
-            <Button href={link} target="_blank">
+            <Button href={link} target="_blank" onClick={() => console.log(link)}>
                 {icon}
             </Button>
         </Tooltip>

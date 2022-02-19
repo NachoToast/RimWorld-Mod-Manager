@@ -18,7 +18,7 @@ export const initialState: State = {
         !!localStorage.getItem(ConfigOptionNameProps.RawJsonPreviewDefault) || false,
 };
 
-export const configSlice = createSlice({
+const configSlice = createSlice({
     name: 'config',
     initialState,
     reducers: {

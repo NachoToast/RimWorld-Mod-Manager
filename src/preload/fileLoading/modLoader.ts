@@ -197,6 +197,7 @@ function removeRedundnantListNesting(obj: ParsedValue | Primitive): ParsedValue 
     return obj;
 }
 
+/** Converts a document object into a record. */
 export function convert<T, K extends string>(document: Document, meta?: LoadOperationMeta): Record<K, T> | null {
     try {
         const data = removeRedundnantListNesting(xml2json(document)) as object;
@@ -210,6 +211,7 @@ export function convert<T, K extends string>(document: Document, meta?: LoadOper
     }
 }
 
+/** Formats raw object converted from an `about.xml` file into the {@link Mod} shape. */
 function formatRawData<T extends ModSource>(
     folderName: string,
     rawData: AboutXML,
@@ -220,7 +222,7 @@ function formatRawData<T extends ModSource>(
 ): Mod<T> {
     const output: Mod<T> = {
         name: rawData.name || folderName,
-        authors: rawData.author.split(/,|\sand\s/g).map((e) => e.trim()),
+        authors: makeAuthors(rawData.author),
         packageId: rawData.packageId,
         supportedVersions: u2a(rawData.supportedVersions),
         folderName,
@@ -247,6 +249,15 @@ function formatRawData<T extends ModSource>(
     if (source === 'core') (output as CoreMod).steamAppId = rawData?.steamAppId || null;
 
     return output;
+}
+
+function makeAuthors(authorString: string): string[] {
+    const allAuthors = authorString
+        .split(/,|\sand\s/g) // when multiple authors, split them by commas or "and"
+        .map((e) => e.replace(/\s/g, '')); // remove whitespace between first and last name
+
+    // filter duplicate authors
+    return Array.from(new Set<string>(allAuthors));
 }
 
 function validateURL(meta: LoadOperationMeta, url?: string): string | null {

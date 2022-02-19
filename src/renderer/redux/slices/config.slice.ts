@@ -25,7 +25,6 @@ const configSlice = createSlice({
          */
         setOption(state, { payload }: { payload: { key: ConfigOptions; value: boolean } }) {
             const { key, value } = payload;
-            console.log(`setting ${key} to ${value}`);
             state[key] = value;
             if (value) localStorage.setItem(key, 'yeet');
             // value doesn't matter, as long as its truthy

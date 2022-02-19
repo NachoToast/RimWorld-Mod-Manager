@@ -285,16 +285,16 @@ export const searchMods = createAsyncThunk('main/searchMods', (searchTerm: strin
 
     const hiddenMods = new Set(Object.keys(modLibrary));
 
-    const searchTerms = searchTerm.toLowerCase().split(/\s/g);
+    searchTerm = searchTerm.toLowerCase();
     for (const packageId in modLibrary) {
         const mod = modLibrary[packageId];
         const desc = mod.description.toLowerCase();
         const authors = mod.authors.join(', ');
 
         let match = false;
-        if (searchTerms.some((term) => desc.includes(term))) match = true;
-        else if (searchTerms.some((term) => authors.includes(term))) match = true;
-        else if (searchTerms.some((term) => packageId.includes(term))) match = true;
+        if (desc.includes(searchTerm)) match = true;
+        else if (authors.includes(searchTerm)) match = true;
+        else if (packageId.includes(searchTerm)) match = true;
 
         if (match) {
             hiddenMods.delete(packageId);

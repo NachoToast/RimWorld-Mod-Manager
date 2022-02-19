@@ -7,6 +7,7 @@ import PublicIcon from '@mui/icons-material/Public';
 import FolderIcon from '@mui/icons-material/Folder';
 import PersonIcon from '@mui/icons-material/Person';
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
+import ScienceIcon from '@mui/icons-material/Science';
 import { getModLibrary } from '../../redux/slices/modManager.slice';
 
 export interface GroupedMods<T extends ModSource> {
@@ -77,6 +78,11 @@ function alphabeticalGrouping(mods: ModList<ModSource>): GroupedMods<ModSource> 
     return output;
 }
 
+const customAuthorIcons: { [authorName: string]: JSX.Element } = {
+    'Ludeon Studios': <PublicIcon />,
+    Owlchemist: <ScienceIcon />,
+};
+
 /** Groups mods by author, mods by multiple authors will appear more than once. */
 function authorGrouping(mods: ModList<ModSource>, newGroupThreshold: number = 3): GroupedMods<ModSource>[] {
     // const authorGroups: GroupedMods<ModSource>[] = [];
@@ -106,7 +112,7 @@ function authorGrouping(mods: ModList<ModSource>, newGroupThreshold: number = 3)
 
     for (const author of authorsWithTheirOwnGroups) {
         output[author] = {
-            icon: <PersonIcon />,
+            icon: customAuthorIcons[author] || <PersonIcon />,
             mods: [],
             title: author,
         };

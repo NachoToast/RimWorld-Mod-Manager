@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { getModGrouping } from '../../redux/slices/main.slice';
 import { Mod, ModList, ModSource } from '../../../types/ModFiles';
@@ -9,7 +9,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import { getModLibrary } from '../../redux/slices/modManager.slice';
 
-interface GroupedMods<T extends ModSource> {
+export interface GroupedMods<T extends ModSource> {
     mods: Mod<T>[];
     title: string;
     icon: JSX.Element;
@@ -143,17 +143,28 @@ function useModGrouping(): GroupedMods<ModSource>[] {
     const grouping = useSelector(getModGrouping);
     const modLibrary = useSelector(getModLibrary);
 
+    const modSet = useMemo<ModList<ModSource>>(() => {
+        const outputSet: ModList<ModSource> = {};
+
+        for (const packageId in modLibrary) {
+            const mod = modLibrary[packageId];
+            if (!mod.hidden) outputSet[packageId] = mod;
+        }
+
+        return outputSet;
+    }, [modLibrary]);
+
     useEffect(() => {
         if (grouping === 'none') {
-            setGroups([noGrouping(modLibrary)]);
+            setGroups([noGrouping(modSet)]);
         } else if (grouping === 'alphabetical') {
-            setGroups([alphabeticalGrouping(modLibrary)]);
+            setGroups([alphabeticalGrouping(modSet)]);
         } else if (grouping === 'author') {
-            setGroups(authorGrouping(modLibrary));
+            setGroups(authorGrouping(modSet));
         } else if (grouping === 'source') {
-            setGroups(groupBySource(modLibrary));
+            setGroups(groupBySource(modSet));
         }
-    }, [grouping, modLibrary]);
+    }, [grouping, modSet]);
 
     return groups;
 }

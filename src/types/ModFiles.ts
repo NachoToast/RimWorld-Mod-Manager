@@ -109,6 +109,7 @@ export interface Mod<T extends ModSource> {
 
     source: ModSource;
     originalSource: ModSource;
+    hidden: boolean;
 }
 
 export interface WorkshopMod extends Mod<'workshop'> {

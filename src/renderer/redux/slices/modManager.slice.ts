@@ -10,6 +10,8 @@ export interface State {
         packageIds: PackageId[];
         lookup: ModList<ModSource>;
     };
+
+    hiddenMods: PackageId[];
 }
 
 export const initialState: State = {
@@ -19,6 +21,8 @@ export const initialState: State = {
         packageIds: [],
         lookup: {},
     },
+
+    hiddenMods: [],
 };
 
 const modManagerSlice = createSlice({
@@ -85,6 +89,18 @@ const modManagerSlice = createSlice({
                 state.modList.packageIds.splice(index, 1);
             }
         },
+        /** Sets mods with the specified package IDs to hidden,
+         * unhides all other mods.
+         */
+        setHidden(state, { payload }: { payload: PackageId[] }) {
+            for (const packageId of state.hiddenMods) {
+                state.modLibrary[packageId.toLowerCase()].hidden = false;
+            }
+            for (const packageId of payload) {
+                state.modLibrary[packageId.toLowerCase()].hidden = true;
+                state.hiddenMods.push(packageId.toLowerCase());
+            }
+        },
     },
 });
 
@@ -96,6 +112,7 @@ export const {
     addToModList,
     clearModList,
     removeFromModList,
+    setHidden,
 } = modManagerSlice.actions;
 
 export const getModLibrary = (state: StoreState) => state.modManager.modLibrary;

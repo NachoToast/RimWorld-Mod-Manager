@@ -241,6 +241,7 @@ function formatRawData<T extends ModSource>(
         source,
         originalSource: source,
         previewImage: previewImage || null,
+        hidden: false,
     };
 
     if (source === 'core') (output as CoreMod).steamAppId = rawData?.steamAppId || null;

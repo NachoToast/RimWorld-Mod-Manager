@@ -2,7 +2,7 @@ import { FormControlLabel, FormGroup, Switch } from '@mui/material';
 import { Box } from '@mui/system';
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { ConfigOptions, getConfig, setOption } from '../../redux/slices/config.slice';
+import { ConfigOptions, getConfig, setBooleanOption } from '../../redux/slices/config.slice';
 import JsonIcon from '../Util/JsonIcon';
 
 const DeveloperSettings = () => {
@@ -15,10 +15,13 @@ const DeveloperSettings = () => {
                 <FormControlLabel
                     control={
                         <Switch
-                            checked={config[ConfigOptions.ViewRawPreviewButton]}
+                            checked={config.booleanDefaultOff[ConfigOptions.ViewRawPreviewButton]}
                             onChange={(e) =>
                                 dispatch(
-                                    setOption({ key: ConfigOptions.ViewRawPreviewButton, value: e.target.checked }),
+                                    setBooleanOption({
+                                        key: ConfigOptions.ViewRawPreviewButton,
+                                        value: e.target.checked,
+                                    }),
                                 )
                             }
                         />
@@ -32,15 +35,34 @@ const DeveloperSettings = () => {
                 <FormControlLabel
                     control={
                         <Switch
-                            checked={config[ConfigOptions.RawJsonPreviewDefault]}
+                            checked={config.booleanDefaultOff[ConfigOptions.RawJsonPreviewDefault]}
                             onChange={(e) =>
                                 dispatch(
-                                    setOption({ key: ConfigOptions.RawJsonPreviewDefault, value: e.target.checked }),
+                                    setBooleanOption({
+                                        key: ConfigOptions.RawJsonPreviewDefault,
+                                        value: e.target.checked,
+                                    }),
                                 )
                             }
                         />
                     }
                     label="Show raw JSON in mod preview by default"
+                />
+                <FormControlLabel
+                    control={
+                        <Switch
+                            checked={config.booleanDefaultOff[ConfigOptions.OpenWorkshopLinksInBrowser]}
+                            onChange={(e) =>
+                                dispatch(
+                                    setBooleanOption({
+                                        key: ConfigOptions.OpenWorkshopLinksInBrowser,
+                                        value: e.target.checked,
+                                    }),
+                                )
+                            }
+                        />
+                    }
+                    label="Steam workshop links should open in browser instead of Steam app"
                 />
             </FormGroup>
         </Box>

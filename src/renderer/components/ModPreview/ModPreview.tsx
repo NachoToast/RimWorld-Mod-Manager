@@ -14,7 +14,7 @@ const ModPreview = () => {
     const mod = useSelector(getCurrentMod);
     const config = useSelector(getConfig);
 
-    const [rawMode, setRawMode] = useState<boolean>(config[ConfigOptions.RawJsonPreviewDefault]);
+    const [rawMode, setRawMode] = useState<boolean>(config.booleanDefaultOff[ConfigOptions.RawJsonPreviewDefault]);
 
     const handleToggleRawMode = () => {
         setRawMode(!rawMode);
@@ -46,7 +46,7 @@ const ModPreview = () => {
                     {mod.url && <LinkIcon link={mod.url} />}
                     {mod.steamWorkshopURL && <LinkIcon link={mod.steamWorkshopURL} />}
                     <OpenIcon icon={<FolderOpenIcon />} title="Open mod folder" link={mod.folderPath} />
-                    {config[ConfigOptions.ViewRawPreviewButton] && (
+                    {config.booleanDefaultOff[ConfigOptions.ViewRawPreviewButton] && (
                         <JsonIcon callback={handleToggleRawMode} open={rawMode} />
                     )}
                 </Stack>
@@ -84,7 +84,7 @@ const ModPreview = () => {
                 {mod.steamWorkshopURL && <LinkIcon link={mod.steamWorkshopURL} />}
                 <OpenIcon icon={<FolderOpenIcon />} title="Open mod folder" link={mod.folderPath} />
 
-                {config[ConfigOptions.ViewRawPreviewButton] && (
+                {config.booleanDefaultOff[ConfigOptions.ViewRawPreviewButton] && (
                     <JsonIcon callback={handleToggleRawMode} open={rawMode} />
                 )}
             </Stack>

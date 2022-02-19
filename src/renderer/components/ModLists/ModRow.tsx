@@ -1,10 +1,11 @@
-import { Checkbox, IconButton, ListItem, ListItemButton, ListItemIcon, ListItemText, Tooltip } from '@mui/material';
+import { Checkbox, IconButton, ListItem, ListItemButton, ListItemText, Tooltip } from '@mui/material';
 import React, { useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { getCurrentMod, setCurrentMod } from '../../redux/slices/main.slice';
+import { setCurrentMod } from '../../redux/slices/main.slice';
 import { Mod, ModSource, PackageId } from '../../../types/ModFiles';
 import RemoveIcon from '@mui/icons-material/Remove';
 import { addToModList, getModList, removeFromModList } from '../../redux/slices/modManager.slice';
+import './ModRow.css';
 
 /** Basic List item for a mod in the active list but not in the library. */
 export const UnknownModRow = (props: { index: number; style: React.CSSProperties; packageId: PackageId }) => {
@@ -47,7 +48,6 @@ export const UnknownModRow = (props: { index: number; style: React.CSSProperties
 
 const ModRow = (props: { index: number; style: React.CSSProperties; mod: Mod<ModSource> }) => {
     const dispatch = useDispatch();
-    const currentMod = useSelector(getCurrentMod);
     const modList = useSelector(getModList);
 
     const { index, style, mod } = props;
@@ -56,8 +56,7 @@ const ModRow = (props: { index: number; style: React.CSSProperties; mod: Mod<Mod
 
     const handleClick = (e: React.MouseEvent) => {
         e.preventDefault();
-        if (currentMod === mod) dispatch(setCurrentMod(null));
-        else dispatch(setCurrentMod(mod));
+        dispatch(setCurrentMod(mod));
     };
 
     const handleAddToList = (e: React.MouseEvent) => {
@@ -68,27 +67,37 @@ const ModRow = (props: { index: number; style: React.CSSProperties; mod: Mod<Mod
     };
 
     return (
-        <ListItem
-            style={style}
-            key={index}
-            component="div"
-            disablePadding
-            sx={{ whiteSpace: 'nowrap', overflow: 'hidden' }}
-        >
-            <ListItemButton sx={{ maxWidth: '100%' }} onClick={handleClick}>
-                <ListItemIcon>
-                    <Checkbox
-                        disableRipple
-                        tabIndex={-1}
-                        edge="start"
-                        checked={isInModList}
-                        onClick={handleAddToList}
-                    />
-                </ListItemIcon>
-                <ListItemText primary={mod.name} />
-            </ListItemButton>
-        </ListItem>
+        <div className="modRow noselect" key={index} style={style} onClick={handleClick}>
+            <Checkbox disableRipple tabIndex={-1} edge="start" checked={isInModList} onClick={handleAddToList} />
+            {mod.name}
+        </div>
     );
+
+    // mui stuff was laggy, especially when scrolling via the scrollbar
+    // return (
+    //     <ListItem
+    //         style={style}
+    //         key={index}
+    //         component="div"
+    //         disablePadding
+    //         sx={{ whiteSpace: 'nowrap', overflow: 'hidden' }}
+    //     >
+    //         <ListItemButton sx={{ maxWidth: '100%' }} onClick={handleClick}>
+    //             {/* <ListItemIcon>
+    //                 <Fade in={false}>
+    //                     <Checkbox
+    //                         disableRipple
+    //                         tabIndex={-1}
+    //                         edge="start"
+    //                         checked={isInModList}
+    //                         onClick={handleAddToList}
+    //                     />
+    //                 </Fade>
+    //             </ListItemIcon> */}
+    //             <ListItemText primary={mod.name} />
+    //         </ListItemButton>
+    //     </ListItem>
+    // );
 };
 
 export default ModRow;

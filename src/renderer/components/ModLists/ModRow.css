@@ -1,0 +1,18 @@
+div.modRow {
+    display: flex;
+    flex-flow: row nowrap;
+    white-space: nowrap;
+    align-items: center;
+    overflow: hidden;
+    cursor: pointer;
+    padding-left: 1rem;
+    transition: background-color 0.1s linear;
+}
+
+div.modRow:hover {
+    background-color: #333;
+}
+
+div.modRow:active {
+    background-color: gray;
+}

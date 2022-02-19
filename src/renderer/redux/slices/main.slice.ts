@@ -11,6 +11,7 @@ import StoreState from '../state';
 import { addToLibrary, addToModList, clearModList, getModLibrary, removeFromLibraryBySource } from './modManager.slice';
 
 export type ErrorString = string;
+export type GroupingOptions = 'source' | 'none' | 'author' | 'alphabetical';
 
 export interface State {
     settingsOpen: boolean;
@@ -27,6 +28,15 @@ export interface State {
     modOverrides: {
         [index: PackageId]: ModSource;
     };
+
+    // search
+    searchTerm: string;
+    searchActive: boolean;
+
+    // filter
+
+    // group
+    modGrouping: GroupingOptions;
 }
 
 const getFromStorage = (t: FilePath): string => localStorage.getItem(filePathStorageKeys[t]) || pathDefaults[t];
@@ -54,6 +64,11 @@ export const initialState: State = {
         if (item) return JSON.parse(item);
         else return defaultModSourceOverrides;
     })(),
+
+    searchTerm: '',
+    searchActive: false,
+
+    modGrouping: 'source',
 };
 
 const mainSlice = createSlice({
@@ -75,7 +90,8 @@ const mainSlice = createSlice({
             }
         },
         setCurrentMod(state, { payload }: { payload: Mod<ModSource> | null }) {
-            state.currentMod = payload;
+            if (state.currentMod?.packageId === payload?.packageId) state.currentMod = null;
+            else state.currentMod = payload;
         },
         setRimWorldVersion(state, { payload }: { payload: RimWorldVersion }) {
             state.rimWorldVersion = payload;
@@ -102,6 +118,15 @@ const mainSlice = createSlice({
             if (isDefault) localStorage.removeItem(otherStorageKeys.modSourceOverrides);
             else localStorage.setItem(otherStorageKeys.modSourceOverrides, JSON.stringify(state.modOverrides));
         },
+        setSearchTerm(state, { payload }: { payload: string }) {
+            state.searchTerm = payload;
+        },
+        setSearchActive(state, { payload }: { payload: boolean }) {
+            state.searchActive = payload;
+        },
+        setModGrouping(state, { payload }: { payload: State['modGrouping'] }) {
+            state.modGrouping = payload;
+        },
     },
 });
 
@@ -112,6 +137,9 @@ export const {
     setRimWorldVersion,
     setRimWorldVersionOverride,
     setModOverrides,
+    setSearchTerm,
+    setSearchActive,
+    setModGrouping,
 } = mainSlice.actions;
 
 export const getSettingsOpen = (state: StoreState) => state.main.settingsOpen;
@@ -120,6 +148,9 @@ export const getCurrentMod = (state: StoreState) => state.main.currentMod;
 export const getRimWorldVersion = (state: StoreState) => state.main.rimWorldVersion;
 export const getRimWorldVersionOverride = (state: StoreState) => state.main.rimwWorldVersionOverride;
 export const getModOverrides = (state: StoreState) => state.main.modOverrides;
+export const getSearchTerm = (state: StoreState) => state.main.searchTerm;
+export const getSearchActive = (state: StoreState) => state.main.searchActive;
+export const getModGrouping = (state: StoreState) => state.main.modGrouping;
 
 export const loadMods = createAsyncThunk('main/loadMods', (source: ModSource, { getState, dispatch }) => {
     const state = getState() as StoreState;

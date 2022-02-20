@@ -7,7 +7,7 @@ import {
     setRimWorldVersionOverride,
 } from '../../redux/slices/main.slice';
 
-const possibleVersions = [1, 1.1, 1.2, 1.3];
+const possibleVersions = [1, 1.1, 1.2, 1.3, 1.4];
 
 const VersionOverride = () => {
     const dispatch = useDispatch();

@@ -1,28 +1,34 @@
-import { Grid, Grow, Typography } from '@mui/material';
-import React from 'react';
-import ActiveModList from '../ModLists/ActiveModList';
-import ModLists from '../ModLists/ModLists';
-import ModPreview from '../ModPreview/ModPreview';
+import { Button, Stack, Tooltip, Typography } from '@mui/material';
+import React, { useState } from 'react';
+import AddModsPage from './AddModsPage';
+import SortModsPage from './SortModsPage';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 
 const Home = () => {
+    // true = add page, false = sort page
+    const [sortMode, setSortMode] = useState<boolean>(false);
+
     return (
         <>
-            <Grow in>
-                <Typography variant="h2" textAlign="center" gutterBottom>
-                    RimWorld Mod Manager
+            <Typography variant="h2" textAlign="center">
+                RimWorld Mod Manager
+            </Typography>
+            <Stack direction="row" justifyContent="center" alignItems="center" spacing={1}>
+                <Tooltip title={sortMode ? 'Go back to adding/removing mods' : 'Go to sorting page'}>
+                    <Button onClick={() => setSortMode(!sortMode)}>
+                        {sortMode ? <ArrowBackIcon /> : <ArrowForwardIcon />}
+                    </Button>
+                </Tooltip>
+                <Typography variant="subtitle1" textAlign="center" sx={{ width: '301px' }}>
+                    {sortMode ? (
+                        <span>Save, load, and sort modlists.</span>
+                    ) : (
+                        <span>Add and remove mods from your modlist.</span>
+                    )}
                 </Typography>
-            </Grow>
-            <Grid container spacing={2}>
-                <Grid item xs={12} md={6} lg={4}>
-                    <ModLists />
-                </Grid>
-                <Grid item xs={12} md={6} lg={6}>
-                    <ModPreview />
-                </Grid>
-                <Grid item xs={12} lg={2}>
-                    <ActiveModList />
-                </Grid>
-            </Grid>
+            </Stack>
+            {sortMode ? <SortModsPage /> : <AddModsPage />}
         </>
     );
 };

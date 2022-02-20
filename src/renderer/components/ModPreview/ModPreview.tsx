@@ -9,6 +9,30 @@ import OpenIcon from '../Util/OpenIcon';
 import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 import JsonIcon from '../Util/JsonIcon';
 import { ConfigOptions, getConfig } from '../../redux/slices/config.slice';
+import ModDescription from './ModDescription';
+
+const ButtonBar = ({
+    mod,
+    rawMode,
+    handleToggleRawMode,
+}: {
+    mod: Mod<ModSource>;
+    handleToggleRawMode: (e: React.MouseEvent) => void;
+    rawMode: boolean;
+}) => {
+    const config = useSelector(getConfig);
+
+    return (
+        <Stack direction="row">
+            {mod.url && <LinkIcon link={mod.url} />}
+            {mod.steamWorkshopURL && <LinkIcon link={mod.steamWorkshopURL} />}
+            <OpenIcon icon={<FolderOpenIcon />} title="Open mod folder" link={mod.folderPath} />
+            {config.booleanDefaultOff[ConfigOptions.ViewRawPreviewButton] && (
+                <JsonIcon callback={handleToggleRawMode} open={rawMode} />
+            )}
+        </Stack>
+    );
+};
 
 const ModPreview = () => {
     const mod = useSelector(getCurrentMod);
@@ -42,52 +66,14 @@ const ModPreview = () => {
         return (
             <Stack height={800} sx={{ overflowY: 'auto' }}>
                 <pre>{JSON.stringify(mod, undefined, 4)}</pre>
-                <Stack direction="row">
-                    {mod.url && <LinkIcon link={mod.url} />}
-                    {mod.steamWorkshopURL && <LinkIcon link={mod.steamWorkshopURL} />}
-                    <OpenIcon icon={<FolderOpenIcon />} title="Open mod folder" link={mod.folderPath} />
-                    {config.booleanDefaultOff[ConfigOptions.ViewRawPreviewButton] && (
-                        <JsonIcon callback={handleToggleRawMode} open={rawMode} />
-                    )}
-                </Stack>
+                <ButtonBar mod={mod} handleToggleRawMode={handleToggleRawMode} rawMode={true} />
             </Stack>
         );
 
     return (
         <Stack height={800} sx={{ overflowY: 'auto' }}>
-            <Typography variant="h6" textAlign="center">
-                {mod.name}
-            </Typography>
-            <Stack sx={{ width: '100%' }} direction="row" justifyContent="space-between">
-                <Typography textAlign="left">{mod.authors.join(', ')}</Typography>
-                <Typography textAlign="right" color="gray">
-                    {mod.packageId}
-                </Typography>
-            </Stack>
-            <img src={mod.previewImages.at(0)} style={{ maxWidth: '100%', alignSelf: 'center' }} />
-            <Stack direction="column">
-                {Object.keys(mod)
-                    .filter(
-                        (e) => !['name', 'authors', 'packageId', 'folderName', 'previewImage', 'source'].includes(e),
-                    )
-                    .map((key, index) => {
-                        const k = key as keyof Mod<ModSource>;
-                        return (
-                            <span key={index}>
-                                {key}: {JSON.stringify(mod[k], undefined, 4)}
-                            </span>
-                        );
-                    })}
-            </Stack>
-            <Stack direction="row">
-                {mod.url && <LinkIcon link={mod.url} />}
-                {mod.steamWorkshopURL && <LinkIcon link={mod.steamWorkshopURL} />}
-                <OpenIcon icon={<FolderOpenIcon />} title="Open mod folder" link={mod.folderPath} />
-
-                {config.booleanDefaultOff[ConfigOptions.ViewRawPreviewButton] && (
-                    <JsonIcon callback={handleToggleRawMode} open={rawMode} />
-                )}
-            </Stack>
+            <ModDescription mod={mod} />
+            <ButtonBar mod={mod} handleToggleRawMode={handleToggleRawMode} rawMode={false} />
         </Stack>
     );
 };

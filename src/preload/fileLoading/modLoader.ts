@@ -142,7 +142,8 @@ export function xmlStringToDocument(s: string, folderName?: string, meta?: LoadO
         const headerTagIndex = s.indexOf('?>');
         if (headerTagIndex !== -1) s = s.slice(headerTagIndex + 2);
 
-        s = s.replace(/[\n\r]/g, ''); // remove EOL chars
+        // s = s.replace(/[\n\r]/g, ''); // remove EOL chars
+        s = s.replace(/[\s]{4}/g, '\n');
 
         const parser = new DOMParser();
         const document = parser.parseFromString(s, 'application/xml');

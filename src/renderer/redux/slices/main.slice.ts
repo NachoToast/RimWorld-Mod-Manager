@@ -290,9 +290,11 @@ export const searchMods = createAsyncThunk('main/searchMods', (searchTerm: strin
         const mod = modLibrary[packageId];
         const desc = mod.description.toLowerCase();
         const authors = mod.authors.join(', ');
+        const name = mod.name.toLowerCase();
 
         let match = false;
-        if (desc.includes(searchTerm)) match = true;
+        if (name.includes(searchTerm)) match = true;
+        else if (desc.includes(searchTerm)) match = true;
         else if (authors.includes(searchTerm)) match = true;
         else if (packageId.includes(searchTerm)) match = true;
 

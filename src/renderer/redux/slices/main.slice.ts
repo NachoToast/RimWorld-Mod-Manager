@@ -286,17 +286,39 @@ export const searchMods = createAsyncThunk('main/searchMods', (searchTerm: strin
     const hiddenMods = new Set(Object.keys(modLibrary));
 
     searchTerm = searchTerm.toLowerCase();
+
+    /** KeyMode is when searching for mod objects that have specific keys. */
+    const keyMode = searchTerm.startsWith('--');
+    if (keyMode) searchTerm = searchTerm.slice(2);
+
     for (const packageId in modLibrary) {
         const mod = modLibrary[packageId];
-        const desc = mod.description.toLowerCase();
-        const authors = mod.authors.join(', ');
-        const name = mod.name.toLowerCase();
-
         let match = false;
-        if (name.includes(searchTerm)) match = true;
-        else if (desc.includes(searchTerm)) match = true;
-        else if (authors.includes(searchTerm)) match = true;
-        else if (packageId.includes(searchTerm)) match = true;
+
+        if (keyMode) {
+            // FIXME: why tf do i have to assert `searchTerm` as a string here?
+            const knownKey = Object.keys(mod).find((key) => key.toLowerCase().includes(searchTerm as string));
+            if (!knownKey) continue;
+
+            const value = mod[knownKey as keyof Mod<ModSource>];
+            if (!value) continue;
+            if (Array.isArray(value)) {
+                match = !!value.length;
+            } else {
+                if (typeof value === 'object') {
+                    match = !!Object.keys(value).length;
+                } else match = true;
+            }
+        } else {
+            const desc = mod.description.toLowerCase();
+            const authors = mod.authors.join(', ');
+            const name = mod.name.toLowerCase();
+
+            if (name.includes(searchTerm)) match = true;
+            else if (desc.includes(searchTerm)) match = true;
+            else if (authors.includes(searchTerm)) match = true;
+            else if (packageId.includes(searchTerm)) match = true;
+        }
 
         if (match) {
             hiddenMods.delete(packageId);

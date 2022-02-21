@@ -261,7 +261,9 @@ function formatRawData<T extends ModSource>(
         modDependenciesByVersion: validateDependenciesByVersion(rawData.modDependenciesByVersion),
         loadBefore: rawData?.loadBefore ? u2a(rawData.loadBefore) : [],
         descriptionsByVersion: validateVersionMap<string>(rawData.descriptionsByVersion),
-        loadAfterByVersion: validateVersionMap<ModDependency>(rawData.loadAfterByVersion),
+        loadAfterByVersion: rawData?.loadAfterByVersion
+            ? validateVersionMap<ModDependency[]>(flattenVersionMap<ModDependency>(rawData.loadAfterByVersion))
+            : [],
         forceLoadBefore: rawData?.forceLoadBefore ? u2a(rawData.forceLoadBefore) : [],
         forceLoadAfter: rawData?.forceLoadAfter ? u2a(rawData.forceLoadAfter) : [],
         source,
@@ -308,6 +310,21 @@ function validateURL(meta: LoadOperationMeta, url?: string): string | null {
     }
 }
 
+function flattenVersionMap<T>(a: RawByVersionMap<T | T[]> | undefined): RawByVersionMap<T[]> {
+    const output: RawByVersionMap<T[]> = {};
+    if (!a) return output;
+
+    for (const key in a) {
+        const val = a[key];
+        if (!val) continue;
+        if (Array.isArray(val)) {
+            output[key] = val;
+        } else output[key] = [val];
+    }
+
+    return output;
+}
+
 function validateVersionMap<T>(a: RawByVersionMap<T | undefined> | undefined): NumericalByVersionMap<T> {
     const output: NumericalByVersionMap<T> = {};
     if (!a) return output;
@@ -343,8 +360,8 @@ function validateDependenciesByVersion<T extends ModSource>(
         const numericalKey = stringVersionToNumerical(key);
 
         if (Array.isArray(val)) {
-            output[numericalKey] = val[0];
-        } else output[numericalKey] = val;
+            output[numericalKey] = val;
+        } else output[numericalKey] = [val];
     }
 
     return output;

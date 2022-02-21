@@ -68,7 +68,7 @@ export interface AboutXML {
     incompatibleWith?: PackageId | PackageId[];
 
     /** 4% */
-    modDependenciesByVersion?: RawByVersionMap<ModDependency | [ModDependency]>;
+    modDependenciesByVersion?: RawByVersionMap<ModDependency | ModDependency[]>;
 
     /** 4% overall; 72% string, 27% string[] */
     loadBefore?: PackageId | PackageId[];
@@ -77,7 +77,7 @@ export interface AboutXML {
     descriptionsByVersion?: RawByVersionMap<AboutXML['description']>;
 
     /** 2% overall; 100% object */
-    loadAfterByVersion?: RawByVersionMap<ModDependency>;
+    loadAfterByVersion?: RawByVersionMap<ModDependency | ModDependency[]>;
 
     /** Only seen on core "mods" */
     forceLoadBefore?: PackageId | PackageId[];
@@ -100,10 +100,10 @@ export interface Mod<T extends ModSource> {
     modDependencies: ModDependency[];
     loadAfter: PackageId[];
     incompatibleWith: PackageId[];
-    modDependenciesByVersion: NumericalByVersionMap<ModDependency>;
+    modDependenciesByVersion: NumericalByVersionMap<ModDependency[]>;
     loadBefore: PackageId[];
     descriptionsByVersion: NumericalByVersionMap<Mod<T>['description']>;
-    loadAfterByVersion: NumericalByVersionMap<ModDependency>;
+    loadAfterByVersion: NumericalByVersionMap<ModDependency[]>;
 
     forceLoadBefore: PackageId[];
     forceLoadAfter: PackageId[];

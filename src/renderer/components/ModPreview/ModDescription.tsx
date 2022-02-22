@@ -1,10 +1,26 @@
-import { Link, Stack, Typography } from '@mui/material';
-import React, { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
+import {
+    Box,
+    Button,
+    Checkbox,
+    Fade,
+    Link,
+    List,
+    ListItem,
+    ListItemButton,
+    ListItemIcon,
+    ListItemText,
+    Stack,
+    Tooltip,
+    Typography,
+} from '@mui/material';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { getRimWorldVersion, getRimWorldVersionOverride } from '../../redux/slices/main.slice';
-import { ModSource, Mod } from '../../../types/ModFiles';
+import { ModSource, Mod, ModDependency, PackageId } from '../../../types/ModFiles';
 import Linkify from 'react-linkify';
 import { getConfig } from '../../redux/slices/config.slice';
+import { addToModList, getModList, removeFromModList } from '../../redux/slices/modManager.slice';
+import AddIcon from '@mui/icons-material/Add';
 
 const InlineLink = ({
     decoratedHref,
@@ -59,10 +75,98 @@ const ImageCarousel = ({ images }: { images: string[] }) => {
     );
 };
 
+const ModDependencies = ({ mod, version }: { mod: Mod<ModSource>; version: number }) => {
+    const dispatch = useDispatch();
+    const modList = useSelector(getModList);
+
+    const [deps, ids]: [deps: ModDependency[], ids: Set<PackageId>] = useMemo(() => {
+        const deps: ModDependency[] = [];
+        const ids: Set<PackageId> = new Set();
+
+        const { modDependencies, modDependenciesByVersion } = mod;
+        const versionDependencies = modDependenciesByVersion[version];
+        const normalDependencies = modDependencies;
+
+        if (versionDependencies?.length)
+            versionDependencies.forEach((e) => {
+                if (!ids.has(e.packageId)) {
+                    ids.add(e.packageId);
+                    deps.push(e);
+                }
+            });
+        if (normalDependencies.length)
+            normalDependencies.forEach((e) => {
+                if (!ids.has(e.packageId)) {
+                    ids.add(e.packageId);
+                    deps.push(e);
+                }
+            });
+
+        return [deps, ids];
+    }, [mod, version]);
+
+    const isInModList = useCallback((id: PackageId) => !!modList.lookup[id.toLowerCase()], [modList.lookup]);
+
+    const canAddAll = useCallback(() => {
+        if (!deps.length) return false;
+        const numInModList = deps.filter(({ packageId }) => isInModList(packageId)).length;
+        if (numInModList >= deps.length - 1) return false;
+        return true;
+    }, [deps, isInModList]);
+
+    if (!deps.length) return <></>;
+
+    const toggleDep = (id: PackageId) => {
+        if (isInModList(id)) {
+            dispatch(removeFromModList([id]));
+        } else {
+            dispatch(addToModList({ packageIds: [id] }));
+        }
+    };
+
+    const addAll = () => {
+        dispatch(addToModList({ packageIds: Array.from(ids) }));
+    };
+
+    return (
+        <Box>
+            <Typography>
+                Dependencies ({deps.length}){' '}
+                <Fade in={canAddAll()}>
+                    <Tooltip title="Add all">
+                        <Button onClick={() => addAll()}>
+                            <AddIcon />
+                        </Button>
+                    </Tooltip>
+                </Fade>
+            </Typography>
+            <List>
+                {deps.map((dep, index) => (
+                    <ListItem disablePadding key={index}>
+                        <ListItemButton role={undefined} onClick={() => toggleDep(dep.packageId)} dense>
+                            <ListItemIcon>
+                                <Checkbox
+                                    edge="start"
+                                    checked={isInModList(dep.packageId)}
+                                    tabIndex={-1}
+                                    disableRipple
+                                />
+                            </ListItemIcon>
+                            <ListItemText primary={dep.displayName} secondary={dep.packageId} />
+                        </ListItemButton>
+                    </ListItem>
+                ))}
+            </List>
+        </Box>
+    );
+};
+
 const ModDescription = ({ mod }: { mod: Mod<ModSource> }) => {
     const rimWorldVersion = useSelector(getRimWorldVersion);
     const overridenVersion = useSelector(getRimWorldVersionOverride);
     const finalVersion = overridenVersion ?? rimWorldVersion?.major ?? 0;
+
+    const chosenDescription = mod.descriptionsByVersion[finalVersion] || mod.description;
 
     return (
         <div>
@@ -83,7 +187,7 @@ const ModDescription = ({ mod }: { mod: Mod<ModSource> }) => {
                 {mod.supportedVersions.map((version, index) => (
                     <span key={index} style={{ color: version === finalVersion ? 'lightgreen' : 'gray' }}>
                         {version === 1 ? '1.0' : version}
-                        <span>{', '}</span>
+                        {', '}
                     </span>
                 ))}
                 <br />
@@ -94,12 +198,30 @@ const ModDescription = ({ mod }: { mod: Mod<ModSource> }) => {
                         <InlineLink decoratedHref={decoratedHref} decoratedText={decoratedText} mod={mod} key={key} />
                     )}
                 >
-                    {parseDescription(mod.description)}
+                    {wrapParseDescription(chosenDescription)}
                 </Linkify>
             </div>
+            <ModDependencies mod={mod} version={finalVersion} />
         </div>
     );
 };
+
+const charMap: { [index: string]: string } = {
+    '&amp;': '', // xml artifact
+    'lt;': '<',
+    'gt;': '>',
+};
+
+/** Parses HTML escape characters (e.g. `&amp;`) to their string equivalents,
+ * before feeding the result through the
+ * {@link parseDescription} function.
+ */
+function wrapParseDescription(desc: string): JSX.Element {
+    for (const char in charMap) {
+        desc = desc.replaceAll(char, charMap[char]);
+    }
+    return parseDescription(desc);
+}
 
 /** Recursively parses known xml tags to JSX.
  *

@@ -248,7 +248,7 @@ function formatRawData<T extends ModSource>(
         name: rawData.name || folderName,
         authors: makeAuthors(rawData.author),
         packageId: rawData.packageId,
-        supportedVersions: u2a(rawData.supportedVersions),
+        supportedVersions: u2a(rawData.supportedVersions).filter((e) => e !== undefined),
         folderName,
         folderPath: `${path}/${folderName}`,
         url: validateURL(meta, rawData.url),

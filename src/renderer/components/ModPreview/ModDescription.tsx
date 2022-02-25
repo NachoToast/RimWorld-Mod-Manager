@@ -15,12 +15,12 @@ import {
 } from '@mui/material';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { getRimWorldVersion, getRimWorldVersionOverride } from '../../redux/slices/main.slice';
 import { ModSource, Mod, ModDependency, PackageId } from '../../../types/ModFiles';
 import Linkify from 'react-linkify';
 import { getConfig } from '../../redux/slices/config.slice';
 import { addToModList, getModList, removeFromModList } from '../../redux/slices/modManager.slice';
 import AddIcon from '@mui/icons-material/Add';
+import useRimWorldVersion from '../Util/useRimWorldVersion';
 
 const InlineLink = ({
     decoratedHref,
@@ -75,32 +75,30 @@ const ImageCarousel = ({ images }: { images: string[] }) => {
     );
 };
 
-const ModDependencies = ({ mod, version }: { mod: Mod<ModSource>; version: number }) => {
+const ModDependencies = ({ mod }: { mod: Mod<ModSource> }) => {
     const dispatch = useDispatch();
     const modList = useSelector(getModList);
+    const version = useRimWorldVersion();
 
     const [deps, ids]: [deps: ModDependency[], ids: Set<PackageId>] = useMemo(() => {
         const deps: ModDependency[] = [];
         const ids: Set<PackageId> = new Set();
 
         const { modDependencies, modDependenciesByVersion } = mod;
-        const versionDependencies = modDependenciesByVersion[version];
-        const normalDependencies = modDependencies;
 
-        if (versionDependencies?.length)
-            versionDependencies.forEach((e) => {
-                if (!ids.has(e.packageId)) {
-                    ids.add(e.packageId);
-                    deps.push(e);
-                }
-            });
-        if (normalDependencies.length)
-            normalDependencies.forEach((e) => {
-                if (!ids.has(e.packageId)) {
-                    ids.add(e.packageId);
-                    deps.push(e);
-                }
-            });
+        modDependenciesByVersion[version]?.forEach((e) => {
+            if (!ids.has(e.packageId)) {
+                ids.add(e.packageId);
+                deps.push(e);
+            }
+        });
+
+        modDependencies.forEach((e) => {
+            if (!ids.has(e.packageId)) {
+                ids.add(e.packageId);
+                deps.push(e);
+            }
+        });
 
         return [deps, ids];
     }, [mod, version]);
@@ -117,16 +115,11 @@ const ModDependencies = ({ mod, version }: { mod: Mod<ModSource>; version: numbe
     if (!deps.length) return <></>;
 
     const toggleDep = (id: PackageId) => {
-        if (isInModList(id)) {
-            dispatch(removeFromModList([id]));
-        } else {
-            dispatch(addToModList({ packageIds: [id], version }));
-        }
+        if (isInModList(id)) dispatch(removeFromModList([id]));
+        else dispatch(addToModList({ packageIds: [id], version }));
     };
 
-    const addAll = () => {
-        dispatch(addToModList({ packageIds: Array.from(ids), version }));
-    };
+    const addAll = () => dispatch(addToModList({ packageIds: Array.from(ids), version }));
 
     return (
         <Box>
@@ -162,11 +155,9 @@ const ModDependencies = ({ mod, version }: { mod: Mod<ModSource>; version: numbe
 };
 
 const ModDescription = ({ mod }: { mod: Mod<ModSource> }) => {
-    const rimWorldVersion = useSelector(getRimWorldVersion);
-    const overridenVersion = useSelector(getRimWorldVersionOverride);
-    const finalVersion = overridenVersion ?? rimWorldVersion?.major ?? 0;
+    const version = useRimWorldVersion();
 
-    const chosenDescription = mod.descriptionsByVersion[finalVersion] || mod.description;
+    const chosenDescription = mod.descriptionsByVersion[version] || mod.description;
 
     return (
         <div>
@@ -182,16 +173,18 @@ const ModDescription = ({ mod }: { mod: Mod<ModSource> }) => {
             <Stack sx={{ width: '100%', maxHeight: 400 }} direction="row" justifyContent="center">
                 <ImageCarousel images={mod.previewImages} />
             </Stack>
-            <span>
-                Supported Versions ({mod.supportedVersions.length}):{' '}
-                {mod.supportedVersions.map((version, index) => (
-                    <span key={index} style={{ color: version === finalVersion ? 'lightgreen' : 'gray' }}>
-                        {version === 1 ? '1.0' : version}
-                        {', '}
-                    </span>
-                ))}
-                <br />
-            </span>
+            {!!mod.supportedVersions.length && (
+                <span>
+                    Supported Versions ({mod.supportedVersions.length}):{' '}
+                    {mod.supportedVersions.map((version, index) => (
+                        <span key={index} style={{ color: version === version ? 'lightgreen' : 'gray' }}>
+                            {version === 1 ? '1.0' : version}
+                            {', '}
+                        </span>
+                    ))}
+                    <br />
+                </span>
+            )}
             <div style={{ whiteSpace: 'pre-wrap' }}>
                 <Linkify
                     componentDecorator={(decoratedHref, decoratedText, key) => (
@@ -201,7 +194,7 @@ const ModDescription = ({ mod }: { mod: Mod<ModSource> }) => {
                     {wrapParseDescription(chosenDescription)}
                 </Linkify>
             </div>
-            <ModDependencies mod={mod} version={finalVersion} />
+            <ModDependencies mod={mod} />
         </div>
     );
 };

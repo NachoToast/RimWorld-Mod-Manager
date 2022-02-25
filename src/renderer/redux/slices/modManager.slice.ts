@@ -1,7 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { ModSource, ModList, PackageId, Mod } from '../../../types/ModFiles';
 import StoreState from '../state';
-
 export interface State {
     /** All recorded mods. */
     modLibrary: ModList<ModSource>;
@@ -24,6 +23,13 @@ export const initialState: State = {
 
     hiddenMods: [],
 };
+
+export interface AddToModListProps {
+    packageIds: PackageId[];
+    index?: number;
+    noDependencies?: boolean;
+    version: number;
+}
 
 const modManagerSlice = createSlice({
     name: 'modManager',
@@ -63,36 +69,24 @@ const modManagerSlice = createSlice({
          * @param {number} [index] The position start inserting mods into the modlist at.
          * If ommitted, will append to the existing modlist.
          */
-        addToModList(
-            state,
-            {
-                payload,
-            }: { payload: { packageIds: PackageId[]; index?: number; noDependencies?: boolean; version: number } },
-        ) {
-            let index = payload.index;
-            for (const id of payload.packageIds) {
-                const packageId = id.toLowerCase();
+        addToModList(state, { payload }: { payload: AddToModListProps }) {
+            const { version, noDependencies, packageIds } = payload;
+            let { index } = payload;
 
-                const mod = state.modLibrary[packageId];
+            function internalAdd(packageId: PackageId) {
+                const mod = state.modLibrary[packageId] as Mod<ModSource> | undefined;
 
-                // add dependencies first
-                if (mod.modDependencies.length && !payload.noDependencies) {
-                    mod.modDependencies.forEach((dep) => {
-                        const dependencyId = dep.packageId.toLowerCase();
-
-                        if (!state.modList.packageIds.includes(dependencyId.toLowerCase())) {
-                            if (index) {
-                                state.modList.packageIds.splice(index, 0, dependencyId.toLowerCase());
-                                index++;
-                            } else state.modList.packageIds.push(dependencyId.toLowerCase());
-                        }
-
-                        const foundDep = state.modLibrary[dependencyId];
-                        if (foundDep) state.modList.lookup[dependencyId] = foundDep;
+                // recursively adding dependencies
+                if (!noDependencies && mod) {
+                    const dependencyIds: Set<PackageId> = new Set(); // unique dependencies only
+                    mod.modDependenciesByVersion[version]?.forEach(({ packageId }) => {
+                        dependencyIds.add(packageId.toLowerCase());
                     });
+                    mod.modDependencies.forEach(({ packageId }) => dependencyIds.add(packageId.toLowerCase()));
+
+                    dependencyIds.forEach((id) => internalAdd(id));
                 }
 
-                // if package id not in list yet, add it
                 if (!state.modList.packageIds.includes(packageId)) {
                     if (index) {
                         state.modList.packageIds.splice(index, 0, packageId);
@@ -102,6 +96,10 @@ const modManagerSlice = createSlice({
 
                 if (mod) state.modList.lookup[packageId] = mod;
                 else console.warn(`Failed to find mod with PackageId %c${packageId}`, 'color: lightcoral');
+            }
+
+            for (const id of packageIds) {
+                internalAdd(id.toLowerCase());
             }
         },
         clearModList(state) {
@@ -147,5 +145,10 @@ export const {
 
 export const getModLibrary = (state: StoreState) => state.modManager.modLibrary;
 export const getModList = (state: StoreState) => state.modManager.modList;
+
+export interface RecursiveAddProps {
+    packageIds: PackageId[];
+    startIndex?: number;
+}
 
 export default modManagerSlice.reducer;

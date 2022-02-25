@@ -25,3 +25,5 @@ export const otherStorageKeys = {
     modSourceOverrides: 'modSourceOverrides',
     modGrouping: 'modGrouping',
 };
+
+export const fallBackVersion = 1.3;

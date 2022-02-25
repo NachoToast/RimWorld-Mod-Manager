@@ -1,6 +1,6 @@
-import { Stack, Typography } from '@mui/material';
-import React, { useState } from 'react';
-import { useSelector } from 'react-redux';
+import { Button, Stack, Tooltip, Typography } from '@mui/material';
+import React, { useCallback, useMemo, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { getCurrentMod } from '../../redux/slices/main.slice';
 import PlagiarismIcon from '@mui/icons-material/Plagiarism';
 import { Mod, ModSource } from '../../../types/ModFiles';
@@ -10,6 +10,9 @@ import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 import JsonIcon from '../Util/JsonIcon';
 import { ConfigOptions, getConfig } from '../../redux/slices/config.slice';
 import ModDescription from './ModDescription';
+import { getModList, removeFromModList, addToModList } from '../../redux/slices/modManager.slice';
+import AddIcon from '@mui/icons-material/Add';
+import RemoveIcon from '@mui/icons-material/Remove';
 
 const ButtonBar = ({
     mod,
@@ -20,7 +23,16 @@ const ButtonBar = ({
     handleToggleRawMode: (e: React.MouseEvent) => void;
     rawMode: boolean;
 }) => {
+    const dispatch = useDispatch();
     const config = useSelector(getConfig);
+    const modList = useSelector(getModList);
+
+    const isInModList = useMemo(() => !!modList.lookup[mod.packageId.toLowerCase()], [mod.packageId, modList.lookup]);
+
+    const toggleInList = useCallback(() => {
+        if (isInModList) dispatch(removeFromModList([mod.packageId]));
+        else dispatch(addToModList({ packageIds: [mod.packageId] }));
+    }, [dispatch, isInModList, mod.packageId]);
 
     return (
         <Stack direction="row">
@@ -30,6 +42,9 @@ const ButtonBar = ({
             {config.booleanDefaultOff[ConfigOptions.ViewRawPreviewButton] && (
                 <JsonIcon callback={handleToggleRawMode} open={rawMode} />
             )}
+            <Tooltip title={isInModList ? 'Remove' : 'Add'}>
+                <Button onClick={toggleInList}>{isInModList ? <RemoveIcon /> : <AddIcon />}</Button>
+            </Tooltip>
         </Stack>
     );
 };

@@ -176,9 +176,9 @@ const ModDescription = ({ mod }: { mod: Mod<ModSource> }) => {
             {!!mod.supportedVersions.length && (
                 <span>
                     Supported Versions ({mod.supportedVersions.length}):{' '}
-                    {mod.supportedVersions.map((version, index) => (
-                        <span key={index} style={{ color: version === version ? 'lightgreen' : 'gray' }}>
-                            {version === 1 ? '1.0' : version}
+                    {mod.supportedVersions.map((modVersion, index) => (
+                        <span key={index} style={{ color: modVersion === version ? 'lightgreen' : 'gray' }}>
+                            {modVersion === 1 ? '1.0' : modVersion}
                             {', '}
                         </span>
                     ))}

@@ -68,8 +68,19 @@ const ModRow = (props: { index: number; style: React.CSSProperties; mod: Mod<Mod
         else dispatch(addToModList({ packageIds: [mod.packageId], version }));
     };
 
+    const handleDragStart = (e: React.DragEvent) => {
+        e.dataTransfer.setData('text/plain', mod.packageId);
+    };
+
     return (
-        <div className="modRow noselect" key={index} style={style} onClick={handleClick}>
+        <div
+            className="modRow noselect"
+            key={index}
+            style={style}
+            onClick={handleClick}
+            onDragStart={handleDragStart}
+            draggable
+        >
             <Checkbox disableRipple tabIndex={-1} edge="start" checked={isInModList} onClick={handleAddToList} />
             {mod.name}
         </div>

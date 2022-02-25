@@ -14,7 +14,7 @@ const SortModsPage = () => {
                     <Typography>load/save lists</Typography>
                 </Grid>
             </Grid>
-            <Grid item xs={4} sx={{ border: 'solid 1px pink' }}>
+            <Grid item xs={4}>
                 <ModPreview />
             </Grid>
             <Grid item xs={4} sx={{ border: 'solid 1px white' }}>

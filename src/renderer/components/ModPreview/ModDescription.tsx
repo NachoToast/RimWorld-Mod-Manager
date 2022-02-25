@@ -120,12 +120,12 @@ const ModDependencies = ({ mod, version }: { mod: Mod<ModSource>; version: numbe
         if (isInModList(id)) {
             dispatch(removeFromModList([id]));
         } else {
-            dispatch(addToModList({ packageIds: [id] }));
+            dispatch(addToModList({ packageIds: [id], version }));
         }
     };
 
     const addAll = () => {
-        dispatch(addToModList({ packageIds: Array.from(ids) }));
+        dispatch(addToModList({ packageIds: Array.from(ids), version }));
     };
 
     return (

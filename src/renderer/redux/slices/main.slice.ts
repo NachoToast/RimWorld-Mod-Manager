@@ -6,6 +6,7 @@ import {
     filePathStorageKeys,
     defaultModSourceOverrides,
     otherStorageKeys,
+    fallBackVersion,
 } from '../../constants/constants';
 import StoreState from '../state';
 import {
@@ -164,11 +165,12 @@ export const loadMods = createAsyncThunk('main/loadMods', (source: ModSource, { 
 export const loadModList = createAsyncThunk('main/loadModList', (_, { getState, dispatch }) => {
     const state = getState() as StoreState;
     const path = getFilePaths(state)['modlist'];
+
     dispatch(clearModList());
     try {
         const { activeMods, version } = window.api.listLoader(path);
         dispatch(setRimWorldVersion(version));
-        dispatch(addToModList({ packageIds: activeMods }));
+        dispatch(addToModList({ packageIds: activeMods, version: version?.major || fallBackVersion }));
     } catch (error) {
         console.log(error);
     }

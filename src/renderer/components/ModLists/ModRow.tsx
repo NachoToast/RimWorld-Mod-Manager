@@ -6,6 +6,7 @@ import { Mod, ModSource, PackageId } from '../../../types/ModFiles';
 import RemoveIcon from '@mui/icons-material/Remove';
 import { addToModList, getModList, removeFromModList } from '../../redux/slices/modManager.slice';
 import './ModRow.css';
+import useRimWorldVersion from '../Util/useRimWorldVersion';
 
 /** Basic List item for a mod in the active list but not in the library. */
 export const UnknownModRow = (props: { index: number; style: React.CSSProperties; packageId: PackageId }) => {
@@ -49,6 +50,7 @@ export const UnknownModRow = (props: { index: number; style: React.CSSProperties
 const ModRow = (props: { index: number; style: React.CSSProperties; mod: Mod<ModSource> }) => {
     const dispatch = useDispatch();
     const modList = useSelector(getModList);
+    const version = useRimWorldVersion();
 
     const { index, style, mod } = props;
 
@@ -63,7 +65,7 @@ const ModRow = (props: { index: number; style: React.CSSProperties; mod: Mod<Mod
         e.preventDefault();
         e.stopPropagation();
         if (isInModList) dispatch(removeFromModList([mod.packageId]));
-        else dispatch(addToModList({ packageIds: [mod.packageId] }));
+        else dispatch(addToModList({ packageIds: [mod.packageId], version }));
     };
 
     return (

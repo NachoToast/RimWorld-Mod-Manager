@@ -53,6 +53,8 @@ const modManagerSlice = createSlice({
         },
         /** Adds an array of mods from the library the the modlist, selected via package ID.
          *
+         * Dependencies will also be added unless specified otherwise.
+         *
          * If a mod isn't in the library, it will still be added,
          * however the lookup table will have no entry.
          *
@@ -61,15 +63,37 @@ const modManagerSlice = createSlice({
          * @param {number} [index] The position start inserting mods into the modlist at.
          * If ommitted, will append to the existing modlist.
          */
-        addToModList(state, { payload }: { payload: { packageIds: PackageId[]; index?: number } }) {
+        addToModList(
+            state,
+            {
+                payload,
+            }: { payload: { packageIds: PackageId[]; index?: number; noDependencies?: boolean; version: number } },
+        ) {
             let index = payload.index;
             for (const id of payload.packageIds) {
                 const packageId = id.toLowerCase();
 
                 const mod = state.modLibrary[packageId];
 
+                // add dependencies first
+                if (mod.modDependencies.length && !payload.noDependencies) {
+                    mod.modDependencies.forEach((dep) => {
+                        const dependencyId = dep.packageId.toLowerCase();
+
+                        if (!state.modList.packageIds.includes(dependencyId.toLowerCase())) {
+                            if (index) {
+                                state.modList.packageIds.splice(index, 0, dependencyId.toLowerCase());
+                                index++;
+                            } else state.modList.packageIds.push(dependencyId.toLowerCase());
+                        }
+
+                        const foundDep = state.modLibrary[dependencyId];
+                        if (foundDep) state.modList.lookup[dependencyId] = foundDep;
+                    });
+                }
+
                 // if package id not in list yet, add it
-                if (state.modList.packageIds.indexOf(packageId) === -1) {
+                if (!state.modList.packageIds.includes(packageId)) {
                     if (index) {
                         state.modList.packageIds.splice(index, 0, packageId);
                         index++;

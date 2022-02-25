@@ -8,6 +8,7 @@ import RemoveIcon from '@mui/icons-material/Remove';
 import { useDispatch, useSelector } from 'react-redux';
 import { addToModList, getModList, removeFromModList } from '../../redux/slices/modManager.slice';
 import VirtualModList from './VirtualModList';
+import useRimWorldVersion from '../Util/useRimWorldVersion';
 
 interface ModListProps {
     icon: JSX.Element;
@@ -18,6 +19,7 @@ interface ModListProps {
 const SingleList = ({ icon, title, mods }: ModListProps) => {
     const dispatch = useDispatch();
     const modlist = useSelector(getModList);
+    const version = useRimWorldVersion();
 
     const [isExpanded, setIsExpanded] = useState<boolean>(false);
 
@@ -34,8 +36,8 @@ const SingleList = ({ icon, title, mods }: ModListProps) => {
     }, [dispatch, mods]);
 
     const addAll = useCallback(() => {
-        dispatch(addToModList({ packageIds: mods.map(({ packageId }) => packageId) }));
-    }, [dispatch, mods]);
+        dispatch(addToModList({ packageIds: mods.map(({ packageId }) => packageId), version }));
+    }, [dispatch, mods, version]);
 
     return (
         <Accordion expanded={isExpanded} onChange={() => setIsExpanded(!isExpanded)} disableGutters>

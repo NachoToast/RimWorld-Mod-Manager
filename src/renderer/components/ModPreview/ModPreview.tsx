@@ -13,6 +13,7 @@ import ModDescription from './ModDescription';
 import { getModList, removeFromModList, addToModList } from '../../redux/slices/modManager.slice';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
+import useRimWorldVersion from '../Util/useRimWorldVersion';
 
 const ButtonBar = ({
     mod,
@@ -26,13 +27,14 @@ const ButtonBar = ({
     const dispatch = useDispatch();
     const config = useSelector(getConfig);
     const modList = useSelector(getModList);
+    const version = useRimWorldVersion();
 
     const isInModList = useMemo(() => !!modList.lookup[mod.packageId.toLowerCase()], [mod.packageId, modList.lookup]);
 
     const toggleInList = useCallback(() => {
         if (isInModList) dispatch(removeFromModList([mod.packageId]));
-        else dispatch(addToModList({ packageIds: [mod.packageId] }));
-    }, [dispatch, isInModList, mod.packageId]);
+        else dispatch(addToModList({ packageIds: [mod.packageId], version }));
+    }, [dispatch, isInModList, mod.packageId, version]);
 
     return (
         <Stack direction="row">

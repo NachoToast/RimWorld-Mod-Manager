@@ -1,7 +1,7 @@
 import { Box } from '@mui/material';
 import React from 'react';
 import VirtualModList from './VirtualModList';
-import Toolbar from '../Toolbar/Toolbar';
+import Toolbar from './Toolbar/Toolbar';
 import useModGrouping from '../Util/useModGouping';
 import SingleList from './SingleList';
 

@@ -17,7 +17,7 @@ const SortModsPage = () => {
             <Grid item xs={4}>
                 <ModPreview />
             </Grid>
-            <Grid item xs={4} sx={{ border: 'solid 1px white' }}>
+            <Grid item xs={4}>
                 <ActiveModList />
             </Grid>
         </Grid>

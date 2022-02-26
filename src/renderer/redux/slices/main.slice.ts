@@ -162,8 +162,8 @@ export const handleSettingsClose = createAsyncThunk(
         for (const k in newFilePaths) {
             const filePath = k as FilePath;
             if (newFilePaths[filePath] !== oldFilePaths[filePath]) {
-                if (filePath === 'modlist') reloadModList = true;
-                else modSourcesToReload.push(filePath as ModSource);
+                reloadModList = true;
+                if (filePath !== 'modlist') modSourcesToReload.push(filePath as ModSource);
             }
         }
 

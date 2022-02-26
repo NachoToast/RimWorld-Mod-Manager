@@ -2,8 +2,9 @@ import { Stack, Typography } from '@mui/material';
 import React, { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { FixedSizeList } from 'react-window';
+import { ModSource, Mod } from '../../../types/ModFiles';
 import { getModList } from '../../redux/slices/modManager.slice';
-import ModRow, { UnknownModRow } from './ModRow';
+import ModRow from './ModRow';
 
 /** A list of the mods in the currently selected mod list, i.e. `ModsConfig.xml` */
 const ActiveModList = () => {
@@ -14,13 +15,9 @@ const ActiveModList = () => {
     const maxHeight = useMemo(() => Math.min(600, 50 * packageIds.length), [packageIds.length]);
 
     const row = (props: { index: number; style: React.CSSProperties }) => {
-        const mod = lookup[packageIds[props.index]];
+        const mod: Mod<ModSource> | undefined = lookup[packageIds[props.index]];
 
-        if (mod) {
-            return <ModRow {...props} mod={lookup[packageIds[props.index]]} />;
-        } else {
-            return <UnknownModRow {...props} packageId={packageIds[props.index]} />;
-        }
+        return <ModRow {...props} mod={mod || packageIds[props.index]} />;
     };
 
     return (

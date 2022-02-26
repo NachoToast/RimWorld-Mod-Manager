@@ -8,7 +8,7 @@ const VirtualModList = ({ mods }: { mods: Mod<ModSource>[] }) => {
         return <ModRow {...props} mod={mods[props.index]} />;
     };
 
-    const maxHeight = useMemo(() => Math.min(600, 50 * mods.length), [mods.length]);
+    const maxHeight = useMemo(() => Math.min(800, 50 * mods.length), [mods.length]);
 
     return (
         <FixedSizeList height={maxHeight} width="100%" itemSize={46} itemCount={mods.length} overscanCount={5}>

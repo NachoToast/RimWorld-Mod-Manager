@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 import { getRimWorldVersion, getRimWorldVersionOverride } from '../../redux/slices/main.slice';
 
 const VersionLabel = () => {
-    const version = useSelector(getRimWorldVersion);
+    const { native: version } = useSelector(getRimWorldVersion);
     const override = useSelector(getRimWorldVersionOverride);
 
     if (version) {

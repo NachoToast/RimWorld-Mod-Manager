@@ -1,7 +1,6 @@
 import { Stack, Tooltip, Button, TextField, Slide } from '@mui/material';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { pathDefaults } from '../../constants/constants';
 import ConstructionIcon from '@mui/icons-material/Construction';
 import FolderIcon from '@mui/icons-material/Folder';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
@@ -11,10 +10,13 @@ import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered';
 import { getFilePaths, setSettingsOpen, setFilePath } from '../../redux/slices/main.slice';
 import { FilePath } from '../../../types/ModFiles';
 import { Box } from '@mui/system';
+import { defaultConfig } from '../../constants/defaultConfig';
 
 const PathDialogue = ({ type, enterDelay }: { type: FilePath; enterDelay: number }) => {
     const dispatch = useDispatch();
     const filePaths = useSelector(getFilePaths);
+
+    const pathDefaults = useMemo(() => defaultConfig['filePaths'], []);
 
     const [enter, setEnter] = useState<boolean>(false);
 
@@ -53,7 +55,7 @@ const PathDialogue = ({ type, enterDelay }: { type: FilePath; enterDelay: number
 
     const id = useMemo<string>(() => `${type}-filepath-textfield-${enterDelay}`, [enterDelay, type]);
 
-    const canReset = useMemo(() => filePaths[type] !== pathDefaults[type], [filePaths, type]);
+    const canReset = useMemo(() => filePaths[type] !== pathDefaults[type], [filePaths, pathDefaults, type]);
 
     const handleChange = (e: React.FormEvent) => {
         e.preventDefault();

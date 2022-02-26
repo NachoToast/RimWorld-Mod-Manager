@@ -1,13 +1,7 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import Config from '../../../types/Config';
 import { RimWorldVersion } from '../../../preload/fileLoading/listLoader';
 import { FilePath, Mod, ModSource, PackageId } from '../../../types/ModFiles';
-import {
-    pathDefaults,
-    filePathStorageKeys,
-    defaultModSourceOverrides,
-    otherStorageKeys,
-    fallBackVersion,
-} from '../../constants/constants';
 import StoreState from '../state';
 import {
     addToLibrary,
@@ -17,59 +11,20 @@ import {
     removeFromLibraryBySource,
     setHidden,
 } from './modManager.slice';
+import defaultConfig, { loadedInConfig, saveConfig } from '../../helpers/configManager';
 
 export type ErrorString = string;
 export type GroupingOptions = 'source' | 'none' | 'author' | 'alphabetical';
 
-export interface State {
+export interface State extends Config {
     settingsOpen: boolean;
-
-    filePaths: {
-        [K in FilePath]: string;
-    };
-
     currentMod: Mod<ModSource> | null;
-
-    rimWorldVersion: RimWorldVersion | null;
-    rimwWorldVersionOverride: number | null;
-
-    modOverrides: {
-        [index: PackageId]: ModSource;
-    };
-
-    // filter
-
-    // group
-    modGrouping: GroupingOptions;
 }
 
-const getFromStorage = (t: FilePath): string => localStorage.getItem(filePathStorageKeys[t]) || pathDefaults[t];
-const getAllFromStorage = (): { [K in FilePath]: string } => {
-    return {
-        core: getFromStorage('core'),
-        local: getFromStorage('local'),
-        modlist: getFromStorage('modlist'),
-        workshop: getFromStorage('workshop'),
-    };
-};
-
 export const initialState: State = {
+    ...loadedInConfig,
     settingsOpen: false,
-
-    filePaths: getAllFromStorage(),
-
     currentMod: null,
-
-    rimWorldVersion: null,
-    rimwWorldVersionOverride: null,
-
-    modOverrides: (() => {
-        const item = localStorage.getItem(otherStorageKeys.modSourceOverrides);
-        if (item) return JSON.parse(item);
-        else return defaultModSourceOverrides;
-    })(),
-
-    modGrouping: (localStorage.getItem(otherStorageKeys.modGrouping) as GroupingOptions) || 'source',
 };
 
 const mainSlice = createSlice({
@@ -83,46 +38,38 @@ const mainSlice = createSlice({
             const { newPath, target } = action.payload;
             state.filePaths[target] = newPath || state.filePaths[target];
 
-            // only set local storage if different from default
-            if (newPath !== pathDefaults[target]) {
-                localStorage.setItem(filePathStorageKeys[target], newPath);
-            } else {
-                localStorage.removeItem(filePathStorageKeys[target]);
-            }
+            saveConfig('filePaths', state.filePaths);
         },
         setCurrentMod(state, { payload }: { payload: Mod<ModSource> | null }) {
             if (state.currentMod?.packageId === payload?.packageId) state.currentMod = null;
             else state.currentMod = payload;
         },
         setRimWorldVersion(state, { payload }: { payload: RimWorldVersion }) {
-            state.rimWorldVersion = payload;
+            state.rimWorldVersion.native = payload;
+
+            saveConfig('rimWorldVersion', state.rimWorldVersion);
         },
         setRimWorldVersionOverride(state, { payload }: { payload: number | null }) {
-            state.rimwWorldVersionOverride = payload;
+            state.rimWorldVersion.overriden = payload;
+
+            saveConfig('rimWorldVersion', state.rimWorldVersion);
         },
         setModOverrides(state, { payload }: { payload: { [index: PackageId]: ModSource } }) {
-            state.modOverrides = payload;
+            state.modSourceOverrides = payload;
 
-            // only set local storage if different from default
-            let isDefault = true;
-            if (Object.keys(payload).length !== Object.keys(defaultModSourceOverrides).length) {
-                isDefault = false;
-            } else {
-                for (const packageId in defaultModSourceOverrides) {
-                    if (payload[packageId] !== defaultModSourceOverrides[packageId]) {
-                        isDefault = false;
-                        break;
-                    }
-                }
-            }
-
-            if (isDefault) localStorage.removeItem(otherStorageKeys.modSourceOverrides);
-            else localStorage.setItem(otherStorageKeys.modSourceOverrides, JSON.stringify(state.modOverrides));
+            saveConfig('modSourceOverrides', state.modSourceOverrides);
         },
         setModGrouping(state, { payload }: { payload: State['modGrouping'] }) {
             state.modGrouping = payload;
-            if (payload !== 'source') localStorage.setItem(otherStorageKeys.modGrouping, payload);
-            else localStorage.removeItem(otherStorageKeys.modGrouping);
+
+            saveConfig('modGrouping', state.modGrouping);
+        },
+        setConfigOption(state, { payload }: { payload: { key: keyof State['config']; value: boolean } }) {
+            const { key, value } = payload;
+
+            state.config[key] = value;
+
+            saveConfig('config', state.config);
         },
     },
 });
@@ -135,14 +82,15 @@ export const {
     setRimWorldVersionOverride,
     setModOverrides,
     setModGrouping,
+    setConfigOption,
 } = mainSlice.actions;
 
 export const getSettingsOpen = (state: StoreState) => state.main.settingsOpen;
 export const getFilePaths = (state: StoreState) => state.main.filePaths;
 export const getCurrentMod = (state: StoreState) => state.main.currentMod;
 export const getRimWorldVersion = (state: StoreState) => state.main.rimWorldVersion;
-export const getRimWorldVersionOverride = (state: StoreState) => state.main.rimwWorldVersionOverride;
-export const getModOverrides = (state: StoreState) => state.main.modOverrides;
+export const getRimWorldVersionOverride = (state: StoreState) => state.main.rimWorldVersion.overriden;
+export const getModOverrides = (state: StoreState) => state.main.modSourceOverrides;
 export const getModGrouping = (state: StoreState) => state.main.modGrouping;
 
 export const loadMods = createAsyncThunk('main/loadMods', (source: ModSource, { getState, dispatch }) => {
@@ -170,7 +118,9 @@ export const loadModList = createAsyncThunk('main/loadModList', (_, { getState, 
     try {
         const { activeMods, version } = window.api.listLoader(path);
         dispatch(setRimWorldVersion(version));
-        dispatch(addToModList({ packageIds: activeMods, version: version?.major || fallBackVersion }));
+        dispatch(
+            addToModList({ packageIds: activeMods, version: version?.major || defaultConfig.rimWorldVersion.fallback }),
+        );
     } catch (error) {
         console.log(error);
     }
@@ -188,7 +138,7 @@ export const initialLoad = createAsyncThunk('main/initialLoad', (_, { getState, 
 
 interface HandleSettingsCloseArgs {
     oldFilePaths: State['filePaths'];
-    oldModOverrides: State['modOverrides'];
+    oldModOverrides: State['modSourceOverrides'];
 }
 
 /** Checking changes in settings once it closes, so we know when to run

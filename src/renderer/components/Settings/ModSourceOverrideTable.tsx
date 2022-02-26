@@ -21,12 +21,12 @@ import { useDispatch, useSelector } from 'react-redux';
 import { ModSource, PackageId } from '../../../types/ModFiles';
 import { getModOverrides, setModOverrides } from '../../redux/slices/main.slice';
 import ClearIcon from '@mui/icons-material/Clear';
-import { defaultModSourceOverrides } from '../../constants/constants';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import AddIcon from '@mui/icons-material/Add';
 import DoneIcon from '@mui/icons-material/Done';
 import WarningIcon from '@mui/icons-material/ReportGmailerrorred';
 import { getModLibrary } from '../../redux/slices/modManager.slice';
+import { defaultConfig } from '../../../renderer/constants/defaultConfig';
 
 const sources: ModSource[] = ['core', 'local', 'workshop'];
 
@@ -34,6 +34,8 @@ const ModSourceOverrideTable = () => {
     const dispatch = useDispatch();
     const modOverrides = useSelector(getModOverrides);
     const modLibrary = useSelector(getModLibrary);
+
+    const defaultModSourceOverrides = useMemo(() => defaultConfig['modSourceOverrides'], []);
 
     const removeFromList = (e: React.MouseEvent, id: PackageId) => {
         e.preventDefault();
@@ -57,7 +59,7 @@ const ModSourceOverrideTable = () => {
             }
         }
         return true;
-    }, [modOverrides]);
+    }, [defaultModSourceOverrides, modOverrides]);
 
     const handleSourceChange = (e: SelectChangeEvent, packageId: PackageId) => {
         e.preventDefault();

@@ -12,7 +12,7 @@ const possibleVersions = [1, 1.1, 1.2, 1.3, 1.4];
 const VersionOverride = () => {
     const dispatch = useDispatch();
     const versionOverride = useSelector(getRimWorldVersionOverride);
-    const version = useSelector(getRimWorldVersion);
+    const { native: version } = useSelector(getRimWorldVersion);
 
     const handleChange = (e: SelectChangeEvent) => {
         e.preventDefault();

@@ -2,7 +2,7 @@ import { FormControlLabel, FormGroup, Switch } from '@mui/material';
 import { Box } from '@mui/system';
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { ConfigOptions, getConfig, setBooleanOption } from '../../redux/slices/config.slice';
+import { getConfig, setConfigOption } from '../../redux/slices/main.slice';
 import JsonIcon from '../Util/JsonIcon';
 
 const DeveloperSettings = () => {
@@ -15,14 +15,9 @@ const DeveloperSettings = () => {
                 <FormControlLabel
                     control={
                         <Switch
-                            checked={config.booleanDefaultOff[ConfigOptions.ViewRawPreviewButton]}
+                            checked={config.viewRawButtonInPreview}
                             onChange={(e) =>
-                                dispatch(
-                                    setBooleanOption({
-                                        key: ConfigOptions.ViewRawPreviewButton,
-                                        value: e.target.checked,
-                                    }),
-                                )
+                                dispatch(setConfigOption({ key: 'viewRawButtonInPreview', value: e.target.checked }))
                             }
                         />
                     }
@@ -35,11 +30,11 @@ const DeveloperSettings = () => {
                 <FormControlLabel
                     control={
                         <Switch
-                            checked={config.booleanDefaultOff[ConfigOptions.RawJsonPreviewDefault]}
+                            checked={config.showRawJsonByDefault}
                             onChange={(e) =>
                                 dispatch(
-                                    setBooleanOption({
-                                        key: ConfigOptions.RawJsonPreviewDefault,
+                                    setConfigOption({
+                                        key: 'showRawJsonByDefault',
                                         value: e.target.checked,
                                     }),
                                 )
@@ -51,11 +46,11 @@ const DeveloperSettings = () => {
                 <FormControlLabel
                     control={
                         <Switch
-                            checked={config.booleanDefaultOff[ConfigOptions.OpenWorkshopLinksInBrowser]}
+                            checked={config.openSteamInBrowser}
                             onChange={(e) =>
                                 dispatch(
-                                    setBooleanOption({
-                                        key: ConfigOptions.OpenWorkshopLinksInBrowser,
+                                    setConfigOption({
+                                        key: 'openSteamInBrowser',
                                         value: e.target.checked,
                                     }),
                                 )

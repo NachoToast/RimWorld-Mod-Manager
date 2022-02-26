@@ -11,7 +11,6 @@ import './App.css';
 import App from './App';
 import mainSlice from './redux/slices/main.slice';
 import modManagerSlice from './redux/slices/modManager.slice';
-import configSlice from './redux/slices/config.slice';
 
 let theme = createTheme({
     palette: {
@@ -32,7 +31,6 @@ const store = configureStore({
     reducer: {
         main: mainSlice,
         modManager: modManagerSlice,
-        config: configSlice,
     },
 });
 

@@ -13,14 +13,14 @@ import {
     Tooltip,
     Typography,
 } from '@mui/material';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { ModSource, Mod, ModDependency, PackageId } from '../../../types/ModFiles';
 import Linkify from 'react-linkify';
-import { getConfig } from '../../redux/slices/config.slice';
 import { addToModList, getModList, removeFromModList } from '../../redux/slices/modManager.slice';
 import AddIcon from '@mui/icons-material/Add';
 import useRimWorldVersion from '../Util/useRimWorldVersion';
+import useSteamLinkOverriding from '../Util/useSteamLinkOverriding';
 
 const InlineLink = ({
     decoratedHref,
@@ -31,24 +31,10 @@ const InlineLink = ({
     decoratedText: string;
     mod: Mod<ModSource>;
 }) => {
-    const { booleanDefaultOff: config } = useSelector(getConfig);
-    const [overridenLink, setOverridenLink] = useState<string>('');
-
-    useEffect(() => {
-        if (decoratedHref.includes('steam')) {
-            if (!config.openWorkshopLinksInBrowser) {
-                const id = decoratedHref.split('/').at(-1);
-                if (id) {
-                    setOverridenLink(`steam://url/CommunityFilePage/${mod.steamWorkshopId}`);
-                }
-            } else {
-                setOverridenLink('');
-            }
-        }
-    }, [config.openWorkshopLinksInBrowser, decoratedHref, mod.steamWorkshopId]);
+    const finalLink = useSteamLinkOverriding(decoratedHref, mod.steamWorkshopId);
 
     return (
-        <Link target="_blank" href={overridenLink || decoratedHref} rel="noopener">
+        <Link target="_blank" href={finalLink} rel="noopener">
             {decoratedText}
         </Link>
     );

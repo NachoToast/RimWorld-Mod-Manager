@@ -1,14 +1,13 @@
 import { Button, Stack, Tooltip, Typography } from '@mui/material';
 import React, { useCallback, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { getCurrentMod, setCurrentMod } from '../../redux/slices/main.slice';
+import { getConfig, getCurrentMod, setCurrentMod } from '../../redux/slices/main.slice';
 import PlagiarismIcon from '@mui/icons-material/Plagiarism';
 import { Mod, ModSource } from '../../../types/ModFiles';
 import LinkIcon from '../Util/LinkIcon';
 import OpenIcon from '../Util/OpenIcon';
 import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 import JsonIcon from '../Util/JsonIcon';
-import { ConfigOptions, getConfig } from '../../redux/slices/config.slice';
 import ModDescription from './ModDescription';
 import { getModList, removeFromModList, addToModList, getModLibrary } from '../../redux/slices/modManager.slice';
 import AddIcon from '@mui/icons-material/Add';
@@ -42,9 +41,7 @@ const ButtonBar = ({
             {mod.url && <LinkIcon link={mod.url} />}
             {mod.steamWorkshopURL && <LinkIcon link={mod.steamWorkshopURL} />}
             <OpenIcon icon={<FolderOpenIcon />} title="Open mod folder" link={mod.folderPath} />
-            {config.booleanDefaultOff[ConfigOptions.ViewRawPreviewButton] && (
-                <JsonIcon callback={handleToggleRawMode} open={rawMode} />
-            )}
+            {config.viewRawButtonInPreview && <JsonIcon callback={handleToggleRawMode} open={rawMode} />}
             <Tooltip title={isInModList ? 'Remove' : 'Add'}>
                 <Button onClick={toggleInList}>{isInModList ? <RemoveIcon /> : <AddIcon />}</Button>
             </Tooltip>
@@ -58,7 +55,7 @@ const ModPreview = () => {
     const modLibrary = useSelector(getModLibrary);
     const config = useSelector(getConfig);
 
-    const [rawMode, setRawMode] = useState<boolean>(config.booleanDefaultOff[ConfigOptions.RawJsonPreviewDefault]);
+    const [rawMode, setRawMode] = useState<boolean>(config.showRawJsonByDefault);
 
     const handleToggleRawMode = () => {
         setRawMode(!rawMode);

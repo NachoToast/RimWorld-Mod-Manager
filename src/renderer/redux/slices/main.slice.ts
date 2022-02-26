@@ -92,6 +92,7 @@ export const getRimWorldVersion = (state: StoreState) => state.main.rimWorldVers
 export const getRimWorldVersionOverride = (state: StoreState) => state.main.rimWorldVersion.overriden;
 export const getModOverrides = (state: StoreState) => state.main.modSourceOverrides;
 export const getModGrouping = (state: StoreState) => state.main.modGrouping;
+export const getConfig = (state: StoreState) => state.main.config;
 
 export const loadMods = createAsyncThunk('main/loadMods', (source: ModSource, { getState, dispatch }) => {
     const state = getState() as StoreState;

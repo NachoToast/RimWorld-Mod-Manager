@@ -17,5 +17,6 @@ export default interface Config {
         viewRawButtonInPreview: boolean;
         showRawJsonByDefault: boolean;
         openSteamInBrowser: boolean;
+        locale: string;
     };
 }

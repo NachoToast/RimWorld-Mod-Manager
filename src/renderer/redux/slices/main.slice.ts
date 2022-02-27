@@ -12,6 +12,7 @@ import {
     setHidden,
 } from './modManager.slice';
 import defaultConfig, { loadedInConfig, saveConfig } from '../../helpers/configManager';
+import { addList, setCurrentList } from './listManager.slice';
 
 export type ErrorString = string;
 export type GroupingOptions = 'source' | 'none' | 'author' | 'alphabetical';
@@ -64,9 +65,11 @@ const mainSlice = createSlice({
 
             saveConfig('modGrouping', state.modGrouping);
         },
-        setConfigOption(state, { payload }: { payload: { key: keyof State['config']; value: boolean } }) {
+        setConfigOption(state, { payload }: { payload: { key: keyof State['config']; value: unknown } }) {
             const { key, value } = payload;
 
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
             state.config[key] = value;
 
             saveConfig('config', state.config);
@@ -122,6 +125,18 @@ export const loadModList = createAsyncThunk('main/loadModList', (_, { getState, 
         dispatch(
             addToModList({ packageIds: activeMods, version: version?.major || defaultConfig.rimWorldVersion.fallback }),
         );
+
+        dispatch(
+            addList({
+                mods: activeMods,
+                createdAt: Date.now(),
+                lastModified: Date.now(),
+                name: 'Default List',
+                description: 'Mods loaded in from ModsConfig.xml',
+                version: version?.major || defaultConfig.rimWorldVersion.fallback,
+            }),
+        );
+        dispatch(setCurrentList('Default List'));
     } catch (error) {
         console.log(error);
     }

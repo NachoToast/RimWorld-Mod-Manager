@@ -26,7 +26,7 @@ import AddIcon from '@mui/icons-material/Add';
 import DoneIcon from '@mui/icons-material/Done';
 import WarningIcon from '@mui/icons-material/ReportGmailerrorred';
 import { getModLibrary } from '../../redux/slices/modManager.slice';
-import { defaultConfig } from '../../../renderer/constants/defaultConfig';
+import { defaultConfig } from '../../constants/constants';
 
 const sources: ModSource[] = ['core', 'local', 'workshop'];
 

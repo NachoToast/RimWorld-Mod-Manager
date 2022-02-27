@@ -1,12 +1,12 @@
 import Config from '../../types/Config';
-import { configKeyPrefix, defaultConfig } from '../constants/defaultConfig';
+import { storageKeyPrefix, defaultConfig } from '../constants/constants';
 
 export function saveConfig(key: keyof Config, value: unknown): void {
-    localStorage.setItem(`${configKeyPrefix}${key}`, JSON.stringify(value));
+    localStorage.setItem(`${storageKeyPrefix}${key}`, JSON.stringify(value));
 }
 
 export function loadConfig(key: keyof Config) {
-    const localItem = localStorage.getItem(`${configKeyPrefix}${key}`);
+    const localItem = localStorage.getItem(`${storageKeyPrefix}${key}`);
     if (localItem !== null) {
         try {
             return JSON.parse(localItem);

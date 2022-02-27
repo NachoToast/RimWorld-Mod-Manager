@@ -10,9 +10,7 @@ const VersionLabel = () => {
     if (version) {
         return (
             <Tooltip title={`${override ? 'Overriding ' : ''}${version.major} ${version.minor} ${version.rev}`}>
-                <div style={{ position: 'absolute', top: 0, left: '0.5rem', color: 'gray', zIndex: '1000' }}>
-                    RimWorld {override || version.major}
-                </div>
+                <span style={{ color: 'gray' }}>RimWorld {override || version.major}</span>
             </Tooltip>
         );
     } else return <></>;

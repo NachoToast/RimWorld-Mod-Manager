@@ -10,7 +10,7 @@ import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered';
 import { getFilePaths, setSettingsOpen, setFilePath } from '../../redux/slices/main.slice';
 import { FilePath } from '../../../types/ModFiles';
 import { Box } from '@mui/system';
-import { defaultConfig } from '../../constants/defaultConfig';
+import { defaultConfig } from '../../constants/constants';
 
 const PathDialogue = ({ type, enterDelay }: { type: FilePath; enterDelay: number }) => {
     const dispatch = useDispatch();

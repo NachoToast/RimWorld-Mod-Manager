@@ -1,7 +1,8 @@
-import { FormControlLabel, FormGroup, Switch } from '@mui/material';
+import { FormControl, FormControlLabel, FormGroup, InputLabel, MenuItem, Select, Stack, Switch } from '@mui/material';
 import { Box } from '@mui/system';
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { supportedLocales } from '../../constants/constants';
 import { getConfig, setConfigOption } from '../../redux/slices/main.slice';
 import JsonIcon from '../Util/JsonIcon';
 
@@ -60,6 +61,24 @@ const DeveloperSettings = () => {
                     label="Steam workshop links should open in browser instead of Steam app"
                 />
             </FormGroup>
+            <Stack direction="row" spacing={1} alignItems="flex-end">
+                <FormControl variant="standard">
+                    <InputLabel id="locale-select-label">Locale</InputLabel>
+                    <Select
+                        labelId="locale-select-label"
+                        id="locale-select"
+                        value={config.locale}
+                        onChange={(e) => dispatch(setConfigOption({ key: 'locale', value: e.target.value }))}
+                    >
+                        {supportedLocales.map((e, i) => (
+                            <MenuItem value={e} key={i}>
+                                {e}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
+                <span style={{ color: 'gray' }}>(e.g {new Date().toLocaleDateString(config.locale)})</span>
+            </Stack>
         </Box>
     );
 };

@@ -1,7 +1,9 @@
 import Config from '../../types/Config';
 
 /** Prepended to all keys when getting/setting items in local storage. */
-export const configKeyPrefix = 'rmm.';
+export const storageKeyPrefix = 'rmm.';
+
+export const supportedLocales: string[] = ['en-NZ', 'en-US'];
 
 export const defaultConfig: Config = {
     filePaths: {
@@ -27,5 +29,6 @@ export const defaultConfig: Config = {
         viewRawButtonInPreview: false,
         showRawJsonByDefault: false,
         openSteamInBrowser: false,
+        locale: 'en-NZ',
     },
 };

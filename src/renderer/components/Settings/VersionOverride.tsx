@@ -7,12 +7,10 @@ import {
     setRimWorldVersionOverride,
 } from '../../redux/slices/main.slice';
 
-const possibleVersions = [1, 1.1, 1.2, 1.3, 1.4];
-
 const VersionOverride = () => {
     const dispatch = useDispatch();
     const versionOverride = useSelector(getRimWorldVersionOverride);
-    const { native: version } = useSelector(getRimWorldVersion);
+    const { native: version, overrideOptions } = useSelector(getRimWorldVersion);
 
     const handleChange = (e: SelectChangeEvent) => {
         e.preventDefault();
@@ -38,7 +36,7 @@ const VersionOverride = () => {
                 onChange={handleChange}
                 sx={{ minWidth: '135px' }}
             >
-                {possibleVersions.map((v, index) => (
+                {overrideOptions.map((v, index) => (
                     <MenuItem key={index} value={v}>
                         {v === version?.major ? `${v} (default)` : v}
                     </MenuItem>

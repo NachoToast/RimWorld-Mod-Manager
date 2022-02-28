@@ -12,7 +12,7 @@ const SortModsPage = () => {
                 <Grid item xs={12}>
                     <Dashboard />
                 </Grid>
-                <Grid item xs={12} sx={{ border: 'solid 1px aquamarine' }}>
+                <Grid item xs={12}>
                     <ListOfLists />
                 </Grid>
             </Grid>

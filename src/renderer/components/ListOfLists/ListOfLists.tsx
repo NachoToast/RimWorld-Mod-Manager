@@ -46,7 +46,7 @@ const ListOfLists = () => {
     const lists = useSelector(getLists);
 
     return (
-        <Box>
+        <Box sx={{ border: 'solid 1px gray', borderRadius: '0.2rem', pb: 1 }}>
             <Typography variant="h6" textAlign="center" gutterBottom sx={{ pt: 1 }}>
                 Saved Mod Lists
             </Typography>

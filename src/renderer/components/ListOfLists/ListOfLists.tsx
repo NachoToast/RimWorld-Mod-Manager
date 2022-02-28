@@ -17,12 +17,7 @@ const ModList = ({ list, index }: { list: SaveList; index: number }) => {
     }, [dispatch, list.name]);
 
     return (
-        <Stack
-            sx={{ width: '100%', pr: 1, pl: 1, overflowX: 'auto' }}
-            direction="row"
-            alignItems="flex-start"
-            spacing={1}
-        >
+        <Stack sx={{ width: '100%', pr: 1, pl: 1, overflowX: 'auto' }} direction="row" alignItems="center" spacing={1}>
             <Stack sx={{ flexGrow: 1 }}>
                 <span style={{ flexGrow: 1, whiteSpace: 'nowrap', color: isCurrent ? 'pink' : undefined }}>
                     {index + 1}. {list.name}
@@ -32,9 +27,9 @@ const ModList = ({ list, index }: { list: SaveList; index: number }) => {
                 </span>
             </Stack>
             <Fade in={!isCurrent}>
-                <Tooltip title="Load">
+                <Tooltip title="Load" placement="left">
                     <Button onClick={loadModList}>
-                        <UploadIcon />
+                        <UploadIcon fontSize="large" />
                     </Button>
                 </Tooltip>
             </Fade>
@@ -46,7 +41,7 @@ const ListOfLists = () => {
     const lists = useSelector(getLists);
 
     return (
-        <Box sx={{ border: 'solid 1px gray', borderRadius: '0.2rem', pb: 1 }}>
+        <Box sx={{ border: 'solid 1px gray', borderRadius: '0.2rem', pb: 1, overflowY: 'auto' }} height={600}>
             <Typography variant="h6" textAlign="center" gutterBottom sx={{ pt: 1 }}>
                 Saved Mod Lists
             </Typography>

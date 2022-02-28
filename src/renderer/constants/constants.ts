@@ -5,6 +5,11 @@ export const storageKeyPrefix = 'rmm.';
 
 export const supportedLocales: string[] = ['en-NZ', 'en-US'];
 
+export const defaultList = {
+    name: 'Default List',
+    description: 'Mods loaded in from ModsConfig.xml',
+};
+
 export const defaultConfig: Config = {
     filePaths: {
         workshop: 'C:\\Program Files (x86)\\Steam\\steamapps\\workshop\\content\\294100',

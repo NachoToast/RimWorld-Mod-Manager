@@ -1,4 +1,4 @@
-import { storageKeyPrefix } from '../../constants/constants';
+import { defaultList, storageKeyPrefix } from '../../constants/constants';
 import SaveList from '../../../types/SavedList';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import StoreState from '../state';
@@ -40,9 +40,17 @@ const listManagerSlice = createSlice({
             saveToStorage('lists', state.lists);
         },
         removeList(state, { payload }: { payload: string }) {
+            if (payload === defaultList.name) throw new Error('Cannot delete the default list');
             delete state.lists[payload];
 
             saveToStorage('lists', state.lists);
+
+            if (payload === state.currentList?.name) {
+                const nextAvailableList = Object.keys(state.lists)
+                    .reverse()
+                    .find((name) => name !== defaultList.name);
+                state.currentList = state.lists[nextAvailableList || defaultList.name];
+            }
         },
         modifyList(state, { payload }: { payload: { oldListName: string; newList: SaveList } }) {
             delete state.lists[payload.oldListName];

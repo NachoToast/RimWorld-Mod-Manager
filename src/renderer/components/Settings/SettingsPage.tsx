@@ -22,8 +22,11 @@ const SettingsPage = () => {
 
     return (
         <>
-            <Typography variant="h2" textAlign="center" gutterBottom>
+            <Typography variant="h2" textAlign="center">
                 Settings
+            </Typography>
+            <Typography textAlign="center" gutterBottom color="gray">
+                RimWorld Mod Manager {window.api.version}
             </Typography>
             <Accordion TransitionProps={{ unmountOnExit: true }}>
                 <AccordionSummary expandIcon={<ExpandMoreIcon />}>

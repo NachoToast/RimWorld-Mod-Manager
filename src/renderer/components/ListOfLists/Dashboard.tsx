@@ -38,10 +38,10 @@ const Dashboard = () => {
     const [isDeleting, setIsDeleting] = useState<boolean>(false);
 
     useEffect(() => {
-        setNewName(currentList?.name ?? '');
+        setNewName(currentList.name);
 
-        setNewDesc(currentList?.description ?? '');
-    }, [currentList?.description, currentList?.name]);
+        setNewDesc(currentList.description);
+    }, [currentList.description, currentList.name]);
 
     const [errorMessage, setErrorMessage] = useState<string>('');
     const [isEditing, setIsEditing] = useState<boolean>(false);
@@ -66,8 +66,6 @@ const Dashboard = () => {
     }, [currentList, isEditing]);
 
     const toggleEditMode = useCallback(() => {
-        if (!currentList) return;
-
         if (isEditing) {
             // closing
             const newList: SaveList = { ...currentList };
@@ -84,7 +82,6 @@ const Dashboard = () => {
     const canDelete = useMemo(() => currentList?.name !== defaultList.name, [currentList?.name]);
 
     const handleDelete = useCallback(() => {
-        if (!currentList) return;
         dispatch(removeList(currentList.name));
         setIsDeleting(false);
     }, [currentList, dispatch]);
@@ -104,13 +101,7 @@ const Dashboard = () => {
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [handleDelete, isDeleting]);
 
-    // const saveModList = useCallback(() => {
-    //     if (!currentList) return;
-    //     dispatch(saveModsToList(currentList.name));
-    // }, [currentList, dispatch]);
-
     const handleClone = useCallback(() => {
-        if (!currentList) return;
         const endsWithSuffix = new RegExp(/-[0-9]+$/g).test(currentList.name);
 
         let nameToCheck = currentList.name;
@@ -139,10 +130,6 @@ const Dashboard = () => {
                 setErrorMessage('Too Short');
                 return;
             }
-            if (!currentList) {
-                setErrorMessage('Unknown Error');
-                return;
-            }
             const listWithThatName = lists[e.target.value] as SaveList | undefined;
             if (listWithThatName) {
                 setErrorMessage('Duplicate Name');
@@ -150,7 +137,7 @@ const Dashboard = () => {
             }
             setErrorMessage('');
         },
-        [currentList, lists],
+        [lists],
     );
 
     const handleExport = useCallback(() => {
@@ -195,8 +182,6 @@ const Dashboard = () => {
             if (timeout) clearTimeout(timeout);
         };
     }, [savedSuccessfully]);
-
-    if (!currentList) return <></>;
 
     return (
         <Box>

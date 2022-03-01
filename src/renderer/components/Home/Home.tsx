@@ -7,7 +7,7 @@ import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 
 const Home = () => {
     // true = add page, false = sort page
-    const [sortMode, setSortMode] = useState<boolean>(true);
+    const [sortMode, setSortMode] = useState<boolean>(false);
 
     return (
         <>

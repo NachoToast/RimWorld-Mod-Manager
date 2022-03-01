@@ -22,7 +22,7 @@ function loadFromStorage<T>(key: keyof State, fallback: T): T {
 
 export interface State {
     lists: Record<string, SaveList>;
-    currentList: SaveList | null;
+    currentList: string | null;
 }
 
 export const initialState: State = {
@@ -45,25 +45,26 @@ const listManagerSlice = createSlice({
 
             saveToStorage('lists', state.lists);
 
-            if (payload === state.currentList?.name) {
+            if (payload === state.currentList) {
                 const nextAvailableList = Object.keys(state.lists)
                     .reverse()
                     .find((name) => name !== defaultList.name);
-                state.currentList = state.lists[nextAvailableList || defaultList.name];
+                state.currentList = nextAvailableList || defaultList.name;
             }
         },
         modifyList(state, { payload }: { payload: { oldListName: string; newList: SaveList } }) {
             delete state.lists[payload.oldListName];
             state.lists[payload.newList.name] = payload.newList;
+            state.lists[payload.newList.name].lastModified = Date.now();
 
-            if (payload.oldListName === state.currentList?.name) {
-                state.currentList = payload.newList;
+            if (payload.oldListName === state.currentList) {
+                state.currentList = payload.newList.name;
             }
 
             saveToStorage('lists', state.lists);
         },
         setCurrentList(state, { payload }: { payload: string }) {
-            state.currentList = state.lists[payload] || null;
+            state.currentList = payload || null;
         },
     },
 });
@@ -71,7 +72,9 @@ const listManagerSlice = createSlice({
 export const { addList, removeList, modifyList, setCurrentList } = listManagerSlice.actions;
 
 export const getLists = (state: StoreState) => state.listManager.lists;
-export const getCurrentList = (state: StoreState) => state.listManager.currentList;
+export const getCurrentList = (state: StoreState) => {
+    return state.listManager.lists[state.listManager.currentList || defaultList.name];
+};
 
 export const saveModsToList = createAsyncThunk(
     'listManager/saveModsToList',

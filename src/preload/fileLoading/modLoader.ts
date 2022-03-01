@@ -11,7 +11,7 @@ import { readdirSync, readFileSync } from 'fs';
 import { join } from 'path';
 
 /** Forces an element to be an array. */
-function u2a<T>(arg: T | T[]): T[] {
+export function u2a<T>(arg: T | T[]): T[] {
     if (Array.isArray(arg)) return arg;
     return [arg];
 }

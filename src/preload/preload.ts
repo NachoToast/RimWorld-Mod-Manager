@@ -1,6 +1,7 @@
 import { contextBridge } from 'electron';
 import modLoader from './fileLoading/modLoader';
 import listLoader from './fileLoading/listLoader';
+import listSaver from './fileLoading/listSaver';
 import { exec } from 'child_process';
 import { userInfo } from 'os';
 
@@ -24,6 +25,7 @@ function getVersion(): string {
 export const api = {
     modLoader,
     listLoader,
+    listSaver,
     createProcess: (path: string) => {
         exec(`start "" "${path.replace('USERNAME', user)}"`);
     },

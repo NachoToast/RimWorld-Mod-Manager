@@ -74,6 +74,9 @@ const mainSlice = createSlice({
 
             saveConfig('config', state.config);
         },
+        setExpansions(state, { payload }: { payload: PackageId[] }) {
+            state.rimWorldVersion.knownExpansions = payload;
+        },
     },
 });
 
@@ -86,6 +89,7 @@ export const {
     setModOverrides,
     setModGrouping,
     setConfigOption,
+    setExpansions,
 } = mainSlice.actions;
 
 export const getSettingsOpen = (state: StoreState) => state.main.settingsOpen;
@@ -120,7 +124,8 @@ export const loadModList = createAsyncThunk('main/loadModList', (_, { getState, 
 
     dispatch(clearModList());
     try {
-        const { activeMods, version } = window.api.listLoader(path);
+        const { activeMods, version, knownExpansions } = window.api.listLoader(path);
+        dispatch(setExpansions(knownExpansions));
         dispatch(setRimWorldVersion(version));
         dispatch(
             addToModList({ packageIds: activeMods, version: version?.major || defaultConfig.rimWorldVersion.fallback }),

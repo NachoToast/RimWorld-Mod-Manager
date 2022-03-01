@@ -26,6 +26,7 @@ export const defaultConfig: Config = {
     rimWorldVersion: {
         fallback: 1.3,
         native: null,
+        knownExpansions: null,
         overriden: null,
         overrideOptions: [1, 1.1, 1.2, 1.3, 1.4],
     },

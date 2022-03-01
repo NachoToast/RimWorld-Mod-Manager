@@ -9,6 +9,8 @@ export default interface Config {
         fallback: number;
         /** Is null before modlist is loaded in. */
         native: RimWorldVersion | null;
+        /** Is null before the modlist is loaded in. */
+        knownExpansions: PackageId[] | null;
         overriden: number | null;
         overrideOptions: number[];
     };

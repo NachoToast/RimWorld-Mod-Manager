@@ -1,6 +1,6 @@
 import { readFileSync } from 'fs';
 import { PackageId } from '../../types/ModFiles';
-import { convert, xmlStringToDocument } from './modLoader';
+import { convert, u2a, xmlStringToDocument } from './modLoader';
 import { userInfo } from 'os';
 
 const user = userInfo().username;
@@ -9,9 +9,9 @@ interface ModsConfigXML {
     /** @example '1.3.3200 rev726' */
     version: string;
 
-    activeMods: PackageId[];
+    activeMods: PackageId[] | PackageId;
 
-    knownExpansions: PackageId[];
+    knownExpansions?: PackageId[] | PackageId;
 }
 
 export interface RimWorldVersion {
@@ -21,10 +21,15 @@ export interface RimWorldVersion {
     minor: number;
     /** @example 'rev726' */
     rev: string;
+
+    /** @example '1.3.3200 rev726' */
+    full: string;
 }
 
-export interface ModsConfig extends Omit<ModsConfigXML, 'version'> {
+export interface ModsConfig {
     version: RimWorldVersion;
+    activeMods: PackageId[];
+    knownExpansions: PackageId[];
 }
 
 function main(path: string): ModsConfig {
@@ -47,9 +52,10 @@ function main(path: string): ModsConfig {
             major: Number(`${majorA}.${majorB}`),
             minor: Number(minor),
             rev,
+            full: version,
         },
-        activeMods,
-        knownExpansions,
+        activeMods: u2a(activeMods),
+        knownExpansions: knownExpansions ? u2a(knownExpansions) : [],
     };
     return output;
 }

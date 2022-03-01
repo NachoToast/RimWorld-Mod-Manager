@@ -4,7 +4,7 @@ import ShareIcon from '@mui/icons-material/Share';
 import ConstructionIcon from '@mui/icons-material/Construction';
 import ForumIcon from '@mui/icons-material/Forum';
 import { Button, Tooltip } from '@mui/material';
-import useSteamLinkOverriding from './useSteamLinkOverriding';
+import useSteamLinkOverriding from '../../hooks/useSteamLinkOverriding';
 
 const LinkIcon = ({ link }: { link: string }) => {
     const [[icon, title], setIcon] = useState<[icon: JSX.Element, title: string | JSX.Element]>([<ShareIcon />, link]);

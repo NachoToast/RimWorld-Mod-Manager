@@ -8,7 +8,7 @@ import RemoveIcon from '@mui/icons-material/Remove';
 import { useDispatch, useSelector } from 'react-redux';
 import { addToModList, getModList, removeFromModList } from '../../redux/slices/modManager.slice';
 import VirtualModList from './VirtualModList';
-import useRimWorldVersion from '../Util/useRimWorldVersion';
+import useRimWorldVersion from '../../hooks/useRimWorldVersion';
 
 interface ModListProps {
     icon: JSX.Element;

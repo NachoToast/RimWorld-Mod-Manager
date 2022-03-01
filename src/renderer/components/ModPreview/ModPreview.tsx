@@ -12,7 +12,7 @@ import ModDescription from './ModDescription';
 import { getModList, removeFromModList, addToModList, getModLibrary } from '../../redux/slices/modManager.slice';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
-import useRimWorldVersion from '../Util/useRimWorldVersion';
+import useRimWorldVersion from '../../hooks/useRimWorldVersion';
 import './ModPreview.css';
 
 const ButtonBar = ({

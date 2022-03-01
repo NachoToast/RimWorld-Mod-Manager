@@ -8,7 +8,7 @@ import { ModSource, Mod } from '../../../types/ModFiles';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import SaveIcon from '@mui/icons-material/Save';
 import ModRow from './ModRow';
-import useRimWorldVersion from '../Util/useRimWorldVersion';
+import useRimWorldVersion from '../../hooks/useRimWorldVersion';
 
 /** A list of the mods in the currently selected mod list, i.e. `ModsConfig.xml` */
 const ActiveModList = () => {

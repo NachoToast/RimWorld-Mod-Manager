@@ -2,7 +2,7 @@ import { Box } from '@mui/material';
 import React from 'react';
 import VirtualModList from './VirtualModList';
 import Toolbar from './Toolbar/Toolbar';
-import useModGrouping from '../Util/useModGouping';
+import useModGrouping from '../../hooks/useModGouping';
 import SingleList from './SingleList';
 
 const ModLists = () => {

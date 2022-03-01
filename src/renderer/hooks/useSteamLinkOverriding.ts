@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { getConfig } from '../../redux/slices/main.slice';
+import { getConfig } from '../redux/slices/main.slice';
 
 function useSteamLinkOverriding(link: string, workshopId?: string | null) {
     const { openSteamInBrowser } = useSelector(getConfig);

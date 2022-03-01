@@ -5,7 +5,7 @@ import { setCurrentMod } from '../../redux/slices/main.slice';
 import { Mod, ModSource, PackageId } from '../../../types/ModFiles';
 import { addToModList, getModList, removeFromModList } from '../../redux/slices/modManager.slice';
 import './ModRow.css';
-import useRimWorldVersion from '../Util/useRimWorldVersion';
+import useRimWorldVersion from '../../hooks/useRimWorldVersion';
 
 const ModRow = (props: { index: number; style: React.CSSProperties; mod: Mod<ModSource> | PackageId }) => {
     const dispatch = useDispatch();

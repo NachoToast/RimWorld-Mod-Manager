@@ -19,8 +19,8 @@ import { ModSource, Mod, ModDependency, PackageId } from '../../../types/ModFile
 import Linkify from 'react-linkify';
 import { addToModList, getModList, removeFromModList } from '../../redux/slices/modManager.slice';
 import AddIcon from '@mui/icons-material/Add';
-import useRimWorldVersion from '../Util/useRimWorldVersion';
-import useSteamLinkOverriding from '../Util/useSteamLinkOverriding';
+import useRimWorldVersion from '../../hooks/useRimWorldVersion';
+import useSteamLinkOverriding from '../../hooks/useSteamLinkOverriding';
 
 const InlineLink = ({
     decoratedHref,

@@ -4,12 +4,15 @@ import VirtualModList from './VirtualModList';
 import Toolbar from './Toolbar/Toolbar';
 import useModGrouping from '../../hooks/useModGouping';
 import SingleList from './SingleList';
+import useRemainingSize from '../../hooks/useRemainingSize';
 
 const ModLists = () => {
     const groupedMods = useModGrouping();
 
+    const height = useRemainingSize();
+
     return (
-        <Box height={800} sx={{ overflowY: 'auto', scrollbarGutter: 'stable' }}>
+        <Box height={height} sx={{ overflowY: 'auto', scrollbarGutter: 'stable' }}>
             <Toolbar />
             {groupedMods.length === 1 ? (
                 <VirtualModList mods={groupedMods[0].mods} />

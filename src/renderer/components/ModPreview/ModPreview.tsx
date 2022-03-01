@@ -14,6 +14,7 @@ import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import useRimWorldVersion from '../../hooks/useRimWorldVersion';
 import './ModPreview.css';
+import useRemainingSize from '../../hooks/useRemainingSize';
 
 const ButtonBar = ({
     mod,
@@ -54,6 +55,8 @@ const ModPreview = () => {
     const mod = useSelector(getCurrentMod);
     const modLibrary = useSelector(getModLibrary);
     const config = useSelector(getConfig);
+
+    const height = useRemainingSize() - 50;
 
     const [rawMode, setRawMode] = useState<boolean>(config.showRawJsonByDefault);
 
@@ -116,7 +119,7 @@ const ModPreview = () => {
     if (rawMode)
         return (
             <div className={`previewContainer${dragged ? ' hovered' : ''}`}>
-                <Stack height={800} sx={{ overflowY: 'auto' }} {...dragEventHandlers}>
+                <Stack height={height} sx={{ overflowY: 'auto' }} {...dragEventHandlers}>
                     <pre>{JSON.stringify(mod, undefined, 4)}</pre>
                     <ButtonBar mod={mod} handleToggleRawMode={handleToggleRawMode} rawMode={true} />
                 </Stack>
@@ -125,7 +128,7 @@ const ModPreview = () => {
 
     return (
         <div className={`previewContainer${dragged ? ' hovered' : ''}`}>
-            <Stack height={800} sx={{ overflowY: 'auto' }} {...dragEventHandlers}>
+            <Stack height={height} sx={{ overflowY: 'auto' }} {...dragEventHandlers}>
                 <ModDescription mod={mod} />
                 <ButtonBar mod={mod} handleToggleRawMode={handleToggleRawMode} rawMode={false} />
             </Stack>

@@ -6,7 +6,8 @@ div.modRow {
     overflow: hidden;
     cursor: pointer;
     padding-left: 1rem;
-    transition: background-color 0.1s linear;
+    border: solid 1px transparent;
+    transition: background-color 0.1s linear, border 0.2s linear;
 }
 
 div.modRow:hover {
@@ -15,4 +16,8 @@ div.modRow:hover {
 
 div.modRow:active {
     background-color: gray;
+}
+
+div.modRow.previewed {
+    border: solid 1px aqua;
 }

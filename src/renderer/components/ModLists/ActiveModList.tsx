@@ -9,6 +9,7 @@ import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import SaveIcon from '@mui/icons-material/Save';
 import ModRow from './ModRow';
 import useRimWorldVersion from '../../hooks/useRimWorldVersion';
+import useRemainingSize from '../../hooks/useRemainingSize';
 
 /** A list of the mods in the currently selected mod list, i.e. `ModsConfig.xml` */
 const ActiveModList = () => {
@@ -19,7 +20,9 @@ const ActiveModList = () => {
     const version = useRimWorldVersion();
     const { packageIds, lookup } = list;
 
-    const maxHeight = useMemo(() => Math.min(600, 50 * packageIds.length), [packageIds.length]);
+    const maxHeight = useRemainingSize();
+
+    const height = useMemo(() => Math.min(maxHeight - 50, 50 * packageIds.length), [maxHeight, packageIds.length]);
 
     const row = (props: { index: number; style: React.CSSProperties }) => {
         const mod: Mod<ModSource> | undefined = lookup[packageIds[props.index]];
@@ -41,7 +44,7 @@ const ActiveModList = () => {
     }, [dispatch, savedList.mods, version]);
 
     return (
-        <Stack height={800} sx={{ overflowY: 'auto' }}>
+        <Stack height={maxHeight} sx={{ overflowY: 'auto' }}>
             <Typography textAlign="center" variant="h6">
                 Active Mods ({packageIds.length})
             </Typography>
@@ -59,13 +62,7 @@ const ActiveModList = () => {
                     </Tooltip>
                 </Collapse>
             </Stack>
-            <FixedSizeList
-                height={maxHeight}
-                width="100%"
-                itemSize={46}
-                itemCount={packageIds.length}
-                overscanCount={5}
-            >
+            <FixedSizeList height={height} width="100%" itemSize={46} itemCount={packageIds.length} overscanCount={5}>
                 {row}
             </FixedSizeList>
         </Stack>

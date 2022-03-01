@@ -73,7 +73,10 @@ export const { addList, removeList, modifyList, setCurrentList } = listManagerSl
 
 export const getLists = (state: StoreState) => state.listManager.lists;
 export const getCurrentList = (state: StoreState) => {
-    return state.listManager.lists[state.listManager.currentList || defaultList.name];
+    const existing = state.listManager.lists[state.listManager.currentList || defaultList.name];
+    return (
+        existing || { name: 'Unknown List', description: '', mods: [], lastModified: Date.now(), createdAt: Date.now() }
+    );
 };
 
 export const saveModsToList = createAsyncThunk(

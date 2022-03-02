@@ -4,10 +4,11 @@ import SearchIcon from '@mui/icons-material/Search';
 import CategoryIcon from '@mui/icons-material/Category';
 import { Button, Fade, FormControl, InputLabel, MenuItem, Select, Stack, TextField, Tooltip } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
-import { getModGrouping, GroupingOptions, searchMods, setModGrouping } from '../../../redux/slices/main.slice';
+import { getModGrouping, GroupingOptions, searchMods, setModGrouping } from '../../../redux/slices/main';
 
 const groupingOptions: GroupingOptions[] = ['none', 'source', 'alphabetical', 'author'];
 
+/** Displays buttons/inputs for searching, filtering, and grouping mods. */
 const Toolbar = () => {
     const dispatch = useDispatch();
     const modGrouping = useSelector(getModGrouping);

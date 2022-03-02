@@ -6,12 +6,9 @@ import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
 import { createTheme, CssBaseline, darkScrollbar, ThemeProvider, responsiveFontSizes } from '@mui/material';
 import { Provider } from 'react-redux';
-import { configureStore } from '@reduxjs/toolkit';
 import './App.css';
 import App from './App';
-import mainSlice from './redux/slices/main.slice';
-import modManagerSlice from './redux/slices/modManager.slice';
-import listManagerSlice from './redux/slices/listManager.slice';
+import { store } from './redux/store';
 
 let theme = createTheme({
     palette: {
@@ -27,14 +24,6 @@ let theme = createTheme({
 });
 
 theme = responsiveFontSizes(theme, { factor: 4 });
-
-const store = configureStore({
-    reducer: {
-        main: mainSlice,
-        modManager: modManagerSlice,
-        listManager: listManagerSlice,
-    },
-});
 
 ReactDOM.render(
     <StrictMode>

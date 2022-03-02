@@ -1,8 +1,9 @@
 import { Tooltip } from '@mui/material';
 import React, { useMemo } from 'react';
 import { useSelector } from 'react-redux';
-import { getCurrentList } from '../../redux/slices/listManager.slice';
+import { getCurrentList } from '../../redux/slices/listManager';
 
+/** Displays the name of the currently selected mod list. */
 const CurrentlySelected = () => {
     const currentList = useSelector(getCurrentList);
 

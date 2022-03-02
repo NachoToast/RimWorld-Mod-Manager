@@ -1,8 +1,9 @@
 import { Tooltip } from '@mui/material';
 import React from 'react';
 import { useSelector } from 'react-redux';
-import { getRimWorldVersion, getRimWorldVersionOverride } from '../../redux/slices/main.slice';
+import { getRimWorldVersion, getRimWorldVersionOverride } from '../../redux/slices/main';
 
+/** Displays the RimWorld version (both overriden and native if different). */
 const VersionLabel = () => {
     const { native: version } = useSelector(getRimWorldVersion);
     const override = useSelector(getRimWorldVersionOverride);

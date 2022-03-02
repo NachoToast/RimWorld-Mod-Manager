@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { getModGrouping } from '../redux/slices/main.slice';
+import { getModGrouping } from '../redux/slices/main';
 import { Mod, ModList, ModSource } from '../../types/ModFiles';
 import ConstructionIcon from '@mui/icons-material/Construction';
 import PublicIcon from '@mui/icons-material/Public';
@@ -9,7 +9,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import ScienceIcon from '@mui/icons-material/Science';
 import CloudIcon from '@mui/icons-material/Cloud';
-import { getModLibrary } from '../redux/slices/modManager.slice';
+import { getModLibrary } from '../redux/slices/modManager';
 
 export interface GroupedMods<T extends ModSource> {
     mods: Mod<T>[];

@@ -1,13 +1,13 @@
 import { Container } from '@mui/material';
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import Home from './components/Home/Home';
-import SettingsButton from './components/Settings/SettingsButton';
-import SettingsPage from './components/Settings/SettingsPage';
+import Home from './components/Home';
+import SettingsButton from './components/Buttons/SettingsButton';
+import SettingsPage from './components/Pages/SettingsPage/SettingsPage';
 import CurrentlySelected from './components/Util/CurrentlySelected';
 import TopLeftBox from './components/Util/TopLeftBox';
 import VersionLabel from './components/Util/VersionLabel';
-import { getSettingsOpen, initialLoad } from './redux/slices/main.slice';
+import { getSettingsOpen, initialLoad } from './redux/slices/main';
 
 const App = () => {
     const dispatch = useDispatch();

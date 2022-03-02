@@ -1,54 +1,13 @@
-import { Button, Stack, Tooltip, Typography } from '@mui/material';
-import React, { useCallback, useMemo, useState } from 'react';
+import { Stack, Typography } from '@mui/material';
+import React, { useCallback, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { getConfig, getCurrentMod, setCurrentMod } from '../../redux/slices/main.slice';
+import { getConfig, getCurrentMod, setCurrentMod } from '../../redux/slices/main';
 import PlagiarismIcon from '@mui/icons-material/Plagiarism';
-import { Mod, ModSource } from '../../../types/ModFiles';
-import LinkIcon from '../Util/LinkIcon';
-import OpenIcon from '../Util/OpenIcon';
-import FolderOpenIcon from '@mui/icons-material/FolderOpen';
-import JsonIcon from '../Util/JsonIcon';
 import ModDescription from './ModDescription';
-import { getModList, removeFromModList, addToModList, getModLibrary } from '../../redux/slices/modManager.slice';
-import AddIcon from '@mui/icons-material/Add';
-import RemoveIcon from '@mui/icons-material/Remove';
-import useRimWorldVersion from '../../hooks/useRimWorldVersion';
+import { getModLibrary } from '../../redux/slices/modManager';
 import './ModPreview.css';
 import useRemainingSize from '../../hooks/useRemainingSize';
-
-const ButtonBar = ({
-    mod,
-    rawMode,
-    handleToggleRawMode,
-}: {
-    mod: Mod<ModSource>;
-    handleToggleRawMode: (e: React.MouseEvent) => void;
-    rawMode: boolean;
-}) => {
-    const dispatch = useDispatch();
-    const config = useSelector(getConfig);
-    const modList = useSelector(getModList);
-    const version = useRimWorldVersion();
-
-    const isInModList = useMemo(() => !!modList.lookup[mod.packageId.toLowerCase()], [mod.packageId, modList.lookup]);
-
-    const toggleInList = useCallback(() => {
-        if (isInModList) dispatch(removeFromModList([mod.packageId]));
-        else dispatch(addToModList({ packageIds: [mod.packageId], version }));
-    }, [dispatch, isInModList, mod.packageId, version]);
-
-    return (
-        <Stack direction="row">
-            {mod.url && <LinkIcon link={mod.url} />}
-            {mod.steamWorkshopURL && <LinkIcon link={mod.steamWorkshopURL} />}
-            <OpenIcon icon={<FolderOpenIcon />} title="Open mod folder" link={mod.folderPath} />
-            {config.viewRawButtonInPreview && <JsonIcon callback={handleToggleRawMode} open={rawMode} />}
-            <Tooltip title={isInModList ? 'Remove' : 'Add'}>
-                <Button onClick={toggleInList}>{isInModList ? <RemoveIcon /> : <AddIcon />}</Button>
-            </Tooltip>
-        </Stack>
-    );
-};
+import ButtonBar from './ButtonBar';
 
 const ModPreview = () => {
     const dispatch = useDispatch();

@@ -1,4 +1,4 @@
-import { GroupingOptions } from '../renderer/redux/slices/main.slice';
+import { GroupingOptions } from '../renderer/redux/slices/main';
 import { RimWorldVersion } from '../preload/fileLoading/listLoader';
 import { FilePath, ModSource, PackageId } from './ModFiles';
 

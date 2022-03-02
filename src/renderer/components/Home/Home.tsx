@@ -1,12 +1,11 @@
 import { Button, Stack, Tooltip, Typography } from '@mui/material';
 import React, { useState } from 'react';
-import AddModsPage from './AddModsPage';
-import SortModsPage from './SortModsPage';
+import AddModsPage from '../Pages/AddModsPage';
+import SortModsPage from '../Pages/SortModsPage';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 
 const Home = () => {
-    // true = add page, false = sort page
     const [sortMode, setSortMode] = useState<boolean>(false);
 
     return (

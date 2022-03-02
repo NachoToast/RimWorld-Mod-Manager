@@ -1,5 +1,5 @@
 import Config from '../../types/Config';
-import { storageKeyPrefix, defaultConfig } from '../constants/constants';
+import { storageKeyPrefix, defaultConfig } from '../constants';
 
 export function saveConfig(key: keyof Config, value: unknown): void {
     localStorage.setItem(`${storageKeyPrefix}${key}`, JSON.stringify(value));

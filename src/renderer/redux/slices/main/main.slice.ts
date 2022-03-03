@@ -19,11 +19,13 @@ export type GroupingOptions = 'source' | 'none' | 'author' | 'alphabetical';
 
 export interface State extends Config {
     settingsOpen: boolean;
+    page: 'add' | 'sort';
     currentMod: Mod<ModSource> | null;
 }
 
 export const initialState: State = {
     ...loadedInConfig,
+    page: 'add',
     settingsOpen: false,
     currentMod: null,
 };
@@ -77,6 +79,9 @@ const mainSlice = createSlice({
         setExpansions(state, { payload }: { payload: PackageId[] }) {
             state.rimWorldVersion.knownExpansions = payload;
         },
+        setPage(state, { payload }: { payload: State['page'] }) {
+            state.page = payload;
+        },
     },
 });
 
@@ -90,6 +95,7 @@ export const {
     setModGrouping,
     setConfigOption,
     setExpansions,
+    setPage,
 } = mainSlice.actions;
 
 export const getSettingsOpen = (state: StoreState) => state.main.settingsOpen;
@@ -100,6 +106,7 @@ export const getRimWorldVersionOverride = (state: StoreState) => state.main.rimW
 export const getModOverrides = (state: StoreState) => state.main.modSourceOverrides;
 export const getModGrouping = (state: StoreState) => state.main.modGrouping;
 export const getConfig = (state: StoreState) => state.main.config;
+export const getPage = (state: StoreState) => state.main.page;
 
 export const loadMods = createAsyncThunk('main/loadMods', (source: ModSource, { getState, dispatch }) => {
     const state = getState() as StoreState;

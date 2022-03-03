@@ -13,8 +13,6 @@ const CurrentlySelected = () => {
 
     const description = useMemo(() => currentList?.description ?? '', [currentList?.description]);
 
-    console.log(page !== 'sort');
-
     return (
         <Tooltip title={description}>
             <Fade in={page !== 'sort'}>

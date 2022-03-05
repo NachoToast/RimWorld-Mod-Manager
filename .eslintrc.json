@@ -29,7 +29,6 @@
             "error",
             {
                 "code": 120,
-                "comments": 123,
                 "ignoreStrings": true,
                 "ignoreTemplateLiterals": true,
                 "ignoreUrls": true

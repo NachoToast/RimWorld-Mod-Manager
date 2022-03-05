@@ -1,7 +1,7 @@
 {
     "name": "rimworld-mod-manager",
     "productName": "Rimworld Mod Manager",
-    "version": "0.8.0",
+    "version": "0.9.0",
     "description": "Save, load, and edit RimWorld mod configurations, made by NachoToast.",
     "main": ".webpack/main",
     "scripts": {

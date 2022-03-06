@@ -15,7 +15,6 @@ import defaultConfig, { loadedInConfig, saveConfig } from '../../../helpers/conf
 import { addList, setCurrentList } from '../listManager';
 
 export type ErrorString = string;
-export type GroupingOptions = 'source' | 'none' | 'author' | 'alphabetical';
 
 export interface State extends Config {
     settingsOpen: boolean;

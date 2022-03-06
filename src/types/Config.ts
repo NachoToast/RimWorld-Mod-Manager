@@ -1,7 +1,7 @@
-import { GroupingOptions } from '../renderer/redux/slices/main';
 import { RimWorldVersion } from '../preload/fileLoading/listLoader';
 import { FilePath, ModSource, PackageId } from './ModFiles';
 
+export type GroupingOptions = 'source' | 'none' | 'author' | 'alphabetical';
 export default interface Config {
     filePaths: Record<FilePath, string>;
     modSourceOverrides: Record<PackageId, ModSource>;

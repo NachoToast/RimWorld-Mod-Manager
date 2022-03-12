@@ -1,30 +1,46 @@
 import { Container } from '@mui/material';
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import Home from './components/Home';
-import SettingsButton from './components/Buttons/SettingsButton';
-import SettingsPage from './components/Pages/SettingsPage/SettingsPage';
-import CurrentlySelected from './components/Util/CurrentlySelected';
-import TopLeftBox from './components/Util/TopLeftBox';
-import VersionLabel from './components/Util/VersionLabel';
-import { getSettingsOpen, initialLoad } from './redux/slices/main';
+import Navbar from './components/Navbar';
+import { loadModsConfig } from './redux/slices/listManager';
+import { loadAllMods } from './redux/slices/modLibrary';
+import BrowsePage from './components/Pages/BrowsePage';
+import SortPage from './components/Pages/SortPage';
+import SettingsPage from './components/Pages/SettingsPage';
+import { getPage, Pages } from './redux/slices/main';
+import ListsPage from './components/Pages/ListsPage';
 
 const App = () => {
     const dispatch = useDispatch();
-    const settingsOpen = useSelector(getSettingsOpen);
 
     useEffect(() => {
-        dispatch(initialLoad());
+        dispatch(loadAllMods());
+        dispatch(loadModsConfig());
     }, [dispatch]);
 
+    const page = useSelector(getPage);
+
+    const content = useMemo<JSX.Element>(() => {
+        switch (page) {
+            case Pages.Browse:
+                return <BrowsePage />;
+            case Pages.Sort:
+                return <SortPage />;
+            case Pages.Settings:
+                return <SettingsPage />;
+            case Pages.Lists:
+                return <ListsPage />;
+        }
+    }, [page]);
+
     return (
-        <Container sx={{ backgroundColor: '#272727', minHeight: '100vh' }} maxWidth={false}>
-            <SettingsButton />
-            <TopLeftBox>
-                <VersionLabel />
-                <CurrentlySelected />
-            </TopLeftBox>
-            {settingsOpen ? <SettingsPage /> : <Home />}
+        <Container
+            sx={{ backgroundColor: '#272727', height: '100vh', display: 'flex', flexFlow: 'column nowrap' }}
+            maxWidth={false}
+            style={{ paddingLeft: 0, paddingRight: 0 }}
+        >
+            {content}
+            <Navbar />
         </Container>
     );
 };

@@ -1,18 +1,23 @@
-import mainSlice, { State as MainState } from './slices/main';
-import modManagerSlice, { State as ModManagerState } from './slices/modManager';
-import listManagerSlice, { State as ListManagerState } from './slices/listManager';
 import { configureStore } from '@reduxjs/toolkit';
+import mainSlice, { State as MainState } from './slices/main';
+import configSlice, { State as ConfigState } from './slices/config';
+import modLibrarySlice, { State as ModLibraryState } from './slices/modLibrary';
+import listManagerSlice, { State as ListManagerState } from './slices/listManager/';
 
 export interface StoreState {
     main: MainState;
-    modManager: ModManagerState;
+    config: ConfigState;
+    modLibrary: ModLibraryState;
     listManager: ListManagerState;
 }
 
-export const store = configureStore({
+const store = configureStore({
     reducer: {
         main: mainSlice,
-        modManager: modManagerSlice,
+        config: configSlice,
+        modLibrary: modLibrarySlice,
         listManager: listManagerSlice,
     },
 });
+
+export default store;

@@ -54,7 +54,7 @@ function main(path: string): ModsConfig {
             rev,
             full: version,
         },
-        activeMods: u2a(activeMods),
+        activeMods: u2a(activeMods).filter((e) => !!e),
         knownExpansions: knownExpansions ? u2a(knownExpansions) : [],
     };
     return output;

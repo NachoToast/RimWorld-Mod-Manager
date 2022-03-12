@@ -8,7 +8,7 @@ import { createTheme, CssBaseline, darkScrollbar, ThemeProvider, responsiveFontS
 import { Provider } from 'react-redux';
 import './App.css';
 import App from './App';
-import { store } from './redux/store';
+import store from './redux/store';
 
 let theme = createTheme({
     palette: {

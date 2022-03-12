@@ -27,7 +27,7 @@ export type RawByVersionMap<T> = Record<string, T>;
 
 export type NumericalByVersionMap<T> = Record<number, T>;
 
-export interface ModList<T extends ModSource> {
+export interface Modlist<T extends ModSource> {
     [index: PackageId]: Mod<T>;
 }
 
@@ -95,6 +95,7 @@ export interface Mod<T extends ModSource> {
     folderPath: string;
     url: string | null;
     steamWorkshopURL: string | null;
+    /** Published file ID, can be used to get steam link. */
     steamWorkshopId: string | null;
     description: string;
     modDependencies: ModDependency[];

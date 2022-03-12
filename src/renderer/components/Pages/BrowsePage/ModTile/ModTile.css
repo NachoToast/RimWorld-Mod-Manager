@@ -1,0 +1,11 @@
+.modTile {
+    background-color: rgba(29, 29, 29, 0.9);
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 1rem;
+    cursor: pointer;
+    overflow: hidden;
+}

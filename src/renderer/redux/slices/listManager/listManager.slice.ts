@@ -1,118 +1,155 @@
-import { defaultList, storageKeyPrefix } from '../../../constants';
-import SaveList from '../../../../types/SavedList';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { ModsConfig } from '../../../../preload/fileLoading/listLoader';
+import CustomList from '../../../../types/CustomList';
+import { loadFromStorage, saveToStorage } from '../../storageHelpers';
 import { StoreState } from '../../store';
-import { addToModList, clearModList, getModList } from '../modManager';
-
-function saveToStorage(key: keyof State, value: unknown): void {
-    localStorage.setItem(`${storageKeyPrefix}${key}`, JSON.stringify(value));
-}
-
-function loadFromStorage<T>(key: keyof State, fallback: T): T {
-    const localItem = localStorage.getItem(`${storageKeyPrefix}${key}`);
-    if (localItem !== null) {
-        try {
-            return JSON.parse(localItem) as T;
-        } catch (error) {
-            //
-        }
-    }
-    return fallback;
-}
+import { getFilePaths } from '../config';
+import { v4 as uuid } from 'uuid';
+import formatListAsXml from '../../../helpers/formatListAsXml';
 
 export interface State {
-    lists: Record<string, SaveList>;
-    currentList: string | null;
+    customLists: Record<string, CustomList>;
+
+    modsConfig?: ModsConfig;
+
+    selectedList?: string;
 }
 
 export const initialState: State = {
-    lists: loadFromStorage<State['lists']>('lists', {}),
-    currentList: null,
+    customLists: loadFromStorage('listManager', 'customLists') || {},
+    selectedList: loadFromStorage('listManager', 'selectedList') || undefined,
 };
 
 const listManagerSlice = createSlice({
     name: 'listManager',
     initialState,
     reducers: {
-        addList(state, { payload }: { payload: SaveList }) {
-            state.lists[payload.name] = payload;
+        modifyCustomList(state, action: { payload: CustomList }) {
+            const list = action.payload;
+            state.customLists[list.id] = list;
 
-            saveToStorage('lists', state.lists);
+            saveToStorage('listManager', 'customLists', state.customLists);
         },
-        removeList(state, { payload }: { payload: string }) {
-            if (payload === defaultList.name) throw new Error('Cannot delete the default list');
-            delete state.lists[payload];
+        deleteCustomList(state, action: { payload: string }) {
+            const id = action.payload;
+            delete state.customLists[id];
 
-            saveToStorage('lists', state.lists);
+            saveToStorage('listManager', 'customLists', state.customLists);
 
-            if (payload === state.currentList) {
-                const nextAvailableList = Object.keys(state.lists)
-                    .reverse()
-                    .find((name) => name !== defaultList.name);
-                state.currentList = nextAvailableList || defaultList.name;
+            // if the list was selected, change it to next available list
+            if (state.selectedList === id) {
+                const fallbackIds = Object.keys(state.customLists);
+                state.selectedList = fallbackIds.at(-1);
+
+                saveToStorage('listManager', 'selectedList', state.selectedList);
             }
         },
-        modifyList(state, { payload }: { payload: { oldListName: string; newList: SaveList } }) {
-            delete state.lists[payload.oldListName];
-            state.lists[payload.newList.name] = payload.newList;
-            state.lists[payload.newList.name].lastModified = Date.now();
+        cloneCustomList(state, action: { payload: string }) {
+            const list = state.customLists[action.payload] as CustomList | undefined;
+            if (!list) throw new Error(`Cannot clone list "${action.payload}", does not exist`);
 
-            if (payload.oldListName === state.currentList) {
-                state.currentList = payload.newList.name;
+            const endingNumber = new RegExp(/-[0-9]+$/g).test(list.name);
+            let nameToCheck = list.name;
+            let suffix = 1;
+            if (endingNumber) {
+                const splitName = list.name.split('-');
+                nameToCheck = splitName.slice(0, -1).join('-');
+                suffix = Number(splitName.at(-1) || '1');
             }
 
-            saveToStorage('lists', state.lists);
+            const listNames = Object.values(state.customLists).map(({ name }) => name);
+
+            while (listNames.includes(`${nameToCheck}-${suffix}`)) suffix++;
+
+            const newId = uuid();
+
+            state.customLists[newId] = { ...list, id: newId, name: `${nameToCheck}-${suffix}` };
+
+            saveToStorage('listManager', 'customLists', state.customLists);
+
+            if (state.selectedList === list.id) {
+                state.selectedList = newId;
+
+                saveToStorage('listManager', 'selectedList', state.selectedList);
+            }
         },
-        setCurrentList(state, { payload }: { payload: string }) {
-            state.currentList = payload || null;
+        setModsConfig(state, action: { payload: ModsConfig }) {
+            state.modsConfig = action.payload;
+        },
+        setSelectedList(state, action: { payload: string | undefined }) {
+            if (action.payload === undefined || state.selectedList === action.payload) state.selectedList = undefined;
+            else state.selectedList = action.payload;
+
+            saveToStorage('listManager', 'selectedList', state.selectedList);
         },
     },
 });
 
-export const { addList, removeList, modifyList, setCurrentList } = listManagerSlice.actions;
+export const { modifyCustomList, deleteCustomList, cloneCustomList, setModsConfig, setSelectedList } =
+    listManagerSlice.actions;
 
-export const getLists = (state: StoreState) => state.listManager.lists;
-export const getCurrentList = (state: StoreState) => {
-    const existing = state.listManager.lists[state.listManager.currentList || defaultList.name];
-    return (
-        existing || { name: 'Unknown List', description: '', mods: [], lastModified: Date.now(), createdAt: Date.now() }
-    );
+export const getCustomLists = (state: StoreState) => state.listManager.customLists;
+
+export const getModsConfig = (state: StoreState) => state.listManager.modsConfig;
+
+export const getSelectedListId = (state: StoreState) => state.listManager.selectedList;
+
+export const getSelectedList = (state: StoreState): CustomList | undefined => {
+    if (state.listManager.selectedList) {
+        const existing = state.listManager.customLists[state.listManager.selectedList] as CustomList | undefined;
+        if (!existing) console.warn(`Selected list "${state.listManager.selectedList}" doesn't exist!`);
+        return existing;
+    }
 };
 
-export const saveModsToList = createAsyncThunk(
-    'listManager/saveModsToList',
-    (listName: string, { getState, dispatch }) => {
-        const state = getState() as StoreState;
-        const mods = getModList(state);
-        const existingList = getLists(state)[listName] as SaveList | undefined;
+/** Loads mods and other information from RimWorld's `ModsConfig.xml` file. */
+export const loadModsConfig = createAsyncThunk('listManager/loadModsConfig', (_, { getState, dispatch }) => {
+    const state = getState() as StoreState;
+    const filePath = getFilePaths(state).modlist;
 
-        if (existingList) {
-            // saving mods to existing list = modify it
-            dispatch(
-                modifyList({
-                    oldListName: listName,
-                    newList: { ...existingList, mods: mods.packageIds, lastModified: Date.now() },
-                }),
-            );
-        } else {
-            // otherwise save using current list details
-            const currentList = getCurrentList(state);
-            if (!currentList) throw new Error('Tried to save modlist without any current list');
-            dispatch(addList({ ...currentList, mods: mods.packageIds, lastModified: Date.now() }));
+    try {
+        const config = window.api.listLoader(filePath);
+        dispatch(setModsConfig(config));
+    } catch (error) {
+        console.log(error);
+    }
+});
+
+export const exportCustomList = createAsyncThunk('listManager/exportCustomList', (list: CustomList, { getState }) => {
+    const state = getState() as StoreState;
+    const config = getModsConfig(state);
+
+    if (!config) throw new Error('Cannot export without an existing ModsConfig.xml');
+
+    const filePayload = formatListAsXml({ modlist: list.mods, ...config });
+
+    const blob = new Blob([filePayload], { type: 'application/xml' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.download = `${list.name}.xml`;
+    link.href = url;
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+});
+
+export const applyCustomModlist = createAsyncThunk(
+    'listManager/applyCustomModlist',
+    (list: CustomList, { getState }) => {
+        const state = getState() as StoreState;
+        const config = getModsConfig(state);
+
+        if (!config) throw new Error('Cannot apply without an existing ModsConfig.xml');
+
+        const filePath = getFilePaths(state).modlist;
+        const filePayload = formatListAsXml({ modlist: list.mods, ...config });
+
+        try {
+            window.api.listSaver(filePath, filePayload);
+        } catch (error) {
+            console.log(error);
         }
-    },
-);
-
-export const loadModsFromList = createAsyncThunk(
-    'listManager/loadModsFromList',
-    (listName: string, { getState, dispatch }) => {
-        const state = getState() as StoreState;
-        const list = getLists(state)[listName] as SaveList | undefined;
-        if (!list) throw new Error(`Tried to load mods from non-existant list '${listName}'`);
-
-        dispatch(setCurrentList(listName));
-        dispatch(clearModList());
-        dispatch(addToModList({ packageIds: list.mods, version: list.version }));
     },
 );
 

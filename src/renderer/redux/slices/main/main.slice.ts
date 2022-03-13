@@ -20,6 +20,7 @@ export interface State {
 
 export const initialState: State = {
     page: loadFromStorage('main', 'page') || Pages.Browse,
+    focussedMod: loadFromStorage('main', 'focussedMod') || undefined,
 };
 
 const mainSlice = createSlice({
@@ -32,7 +33,10 @@ const mainSlice = createSlice({
             saveToStorage('main', 'page', action.payload);
         },
         setFocussedMod(state, action: { payload: Mod<ModSource> | undefined }) {
-            state.focussedMod = action.payload;
+            if (action.payload?.packageId === state.focussedMod?.packageId) state.focussedMod = undefined;
+            else state.focussedMod = action.payload;
+
+            saveToStorage('main', 'focussedMod', state.focussedMod);
         },
     },
 });

@@ -9,7 +9,7 @@ export interface State {
     workshop: Record<PackageId, Mod<'workshop'>>;
 
     search: {
-        active: boolean;
+        term: string;
         results: Mod<ModSource>[];
     };
 }
@@ -20,7 +20,7 @@ export const initialState: State = {
     workshop: {},
 
     search: {
-        active: false,
+        term: '',
         results: [],
     },
 };
@@ -33,14 +33,6 @@ const modLibrarySlice = createSlice({
             const mods = action.payload;
             mods.forEach((mod) => (state[mod.source][mod.packageId.toLowerCase()] = mod));
         },
-        addMod(state, action: { payload: Mod<ModSource> }) {
-            const mod = action.payload;
-            state[mod.source][mod.packageId.toLowerCase()] = mod;
-        },
-        removeMod(state, action: { payload: Mod<ModSource> }) {
-            const mod = action.payload;
-            delete state[mod.source][mod.packageId.toLowerCase()];
-        },
         resetMods(state, action?: { payload: ModSource }) {
             const source = action?.payload;
             if (source) {
@@ -51,18 +43,18 @@ const modLibrarySlice = createSlice({
                 state['workshop'] = {};
             }
         },
-        hideMods(state, action: { payload: Mod<ModSource>[] }) {
-            state.search.active = true;
-            state.search.results = action.payload;
+        hideMods(state, action: { payload: { mods: Mod<ModSource>[]; searchTerm: string } }) {
+            state.search.term = action.payload.searchTerm;
+            state.search.results = action.payload.mods;
         },
         unhideMods(state) {
-            state.search.active = false;
+            state.search.term = '';
             state.search.results = [];
         },
     },
 });
 
-export const { addMods, addMod, removeMod, resetMods, hideMods, unhideMods } = modLibrarySlice.actions;
+export const { addMods, resetMods, hideMods, unhideMods } = modLibrarySlice.actions;
 
 export const getLibrarySize = (state: StoreState, source?: ModSource): number => {
     if (source) return Object.keys(state.modLibrary[source]).length;
@@ -76,7 +68,7 @@ export const getLibrarySize = (state: StoreState, source?: ModSource): number =>
 };
 
 export const getFilteredModLibrary = (state: StoreState): Record<PackageId, Mod<ModSource>> => {
-    if (state.modLibrary.search.active) {
+    if (state.modLibrary.search.term) {
         const output: Record<PackageId, Mod<ModSource>> = {};
         state.modLibrary.search.results.forEach((mod) => {
             output[mod.packageId.toLowerCase()] = mod;
@@ -93,16 +85,13 @@ export const getModLibrary = (state: StoreState): Record<PackageId, Mod<ModSourc
     return { ...coreMods, ...localMods, ...workshopMods };
 };
 
-export const loadAllMods = createAsyncThunk('modLibrary/loadAllMods', (_, { getState, dispatch }) => {
+export const getSearchTerm = (state: StoreState) => state.modLibrary.search.term;
+
+/** Calls {@link loadMods} function for all sources. */
+export const loadAllMods = createAsyncThunk('modLibrary/loadAllMods', (_, { dispatch }) => {
     dispatch(loadMods('core'));
     dispatch(loadMods('local'));
     dispatch(loadMods('workshop'));
-
-    const state = getState() as StoreState;
-    const numCore = getLibrarySize(state, 'core');
-    const numWorkshop = getLibrarySize(state, 'workshop');
-    const numLocal = getLibrarySize(state, 'local');
-    console.log(numCore, numWorkshop, numLocal);
 });
 
 export const loadMods = createAsyncThunk('modLibrary/loadMods', (source: ModSource, { getState, dispatch }) => {
@@ -120,7 +109,7 @@ export const loadMods = createAsyncThunk('modLibrary/loadMods', (source: ModSour
 });
 
 export const searchMods = createAsyncThunk('modLibrary/searchMods', (searchTerm: string, { getState, dispatch }) => {
-    searchTerm = searchTerm.toLowerCase();
+    const term = searchTerm.toLowerCase();
 
     const state = getState() as StoreState;
 
@@ -130,15 +119,15 @@ export const searchMods = createAsyncThunk('modLibrary/searchMods', (searchTerm:
 
     for (const mod of Object.values(mods)) {
         if (
-            mod.name.toLowerCase().includes(searchTerm) ||
-            mod.packageId.toLowerCase().includes(searchTerm) ||
-            mod.description.toLowerCase().includes(searchTerm)
+            mod.name.toLowerCase().includes(term) ||
+            mod.packageId.toLowerCase().includes(term) ||
+            mod.description.toLowerCase().includes(term)
         ) {
             searchResults.push(mod);
         }
     }
 
-    dispatch(hideMods(searchResults));
+    dispatch(hideMods({ mods: searchResults, searchTerm }));
 });
 
 export default modLibrarySlice.reducer;

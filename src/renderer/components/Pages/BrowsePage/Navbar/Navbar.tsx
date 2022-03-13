@@ -2,7 +2,7 @@ import { Stack, TablePagination } from '@mui/material';
 import React from 'react';
 import { PageChangeFunction, PerPageChangeFunction } from '../../../../hooks/useModPagination';
 import './LibraryNavBar.css';
-import Searchbox from './Searchbox';
+import Searchbox from '../../../Searchbox';
 
 interface LibraryNavBarProps {
     numPages: number;

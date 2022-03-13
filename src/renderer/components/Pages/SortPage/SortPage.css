@@ -1,0 +1,10 @@
+span.modRow {
+    background-color: #272727;
+    transition: background-color 0.1s linear;
+    padding: 0.5rem;
+    cursor: pointer;
+}
+
+span.modRow:hover {
+    background-color: gray;
+}

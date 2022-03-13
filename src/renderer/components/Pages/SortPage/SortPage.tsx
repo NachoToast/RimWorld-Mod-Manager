@@ -1,14 +1,22 @@
-import { Divider, Fade, Grid, Stack, Typography } from '@mui/material';
-import React from 'react';
+import { Fade, Grid, Typography } from '@mui/material';
+import React, { useMemo } from 'react';
 import { useSelector } from 'react-redux';
+import { PackageId } from '../../../../types/ModFiles';
 import { getSelectedList } from '../../../redux/slices/listManager';
-import { getModLibrary } from '../../../redux/slices/modLibrary';
-import NotSelectedOverlay from '../../NotSelectedOverlay';
+import ModPreviewLine from '../../ModPreviewLine';
+import AllModsList from './AllModsList/AllModsList';
 import NoListSelectedModal from './NoListSelectedModal/NoListSelectedModal';
+import './SortPage.css';
+
+const emptySet = new Set<PackageId>();
 
 const SortPage = () => {
-    const modLibrary = useSelector(getModLibrary);
     const selectedList = useSelector(getSelectedList);
+
+    const activeMods = useMemo<Set<PackageId>>(() => {
+        if (!selectedList) return emptySet;
+        return new Set(selectedList.mods);
+    }, [selectedList]);
 
     if (!selectedList)
         return (
@@ -20,15 +28,18 @@ const SortPage = () => {
     return (
         <Fade in>
             <Grid container sx={{ flexGrow: 1, position: 'relative', overflowY: 'hidden' }}>
-                <Grid item xs={6} sx={{ border: 'solid 1px pink', p: 1, height: '70%', overflowY: 'auto' }}>
-                    <Typography textAlign="center" variant="h4">
-                        All Mods
-                    </Typography>
-                    <Stack spacing={1} divider={<Divider flexItem />} sx={{ overflowY: 'auto' }}>
-                        {Object.values(modLibrary).map((mod, index) => (
-                            <span key={index}>{mod.name}</span>
-                        ))}
-                    </Stack>
+                <Grid
+                    item
+                    xs={6}
+                    sx={{
+                        border: 'solid 1px pink',
+                        height: '70%',
+                        overflowY: 'auto',
+                        display: 'flex',
+                        flexFlow: 'column nowrap',
+                    }}
+                >
+                    <AllModsList activeList={activeMods} />
                 </Grid>
                 <Grid item xs={6} sx={{ border: 'solid 1px aquamarine', p: 1, height: '70%' }}>
                     <Typography textAlign="center" variant="h4">
@@ -36,7 +47,7 @@ const SortPage = () => {
                     </Typography>
                 </Grid>
                 <Grid item xs={12} sx={{ border: 'solid 1px green', p: 1, height: '30%' }}>
-                    <NotSelectedOverlay text="Select a mod to preview" />
+                    <ModPreviewLine />
                 </Grid>
             </Grid>
         </Fade>

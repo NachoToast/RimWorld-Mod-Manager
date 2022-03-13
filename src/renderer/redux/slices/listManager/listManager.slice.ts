@@ -1,11 +1,13 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { ModsConfig } from '../../../../preload/fileLoading/listLoader';
+import { ModsConfig, RimWorldVersion } from '../../../../preload/fileLoading/listLoader';
 import CustomList from '../../../../types/CustomList';
 import { loadFromStorage, saveToStorage } from '../../storageHelpers';
 import { StoreState } from '../../store';
 import { getFilePaths } from '../config';
 import { v4 as uuid } from 'uuid';
 import formatListAsXml from '../../../helpers/formatListAsXml';
+import { Mod, ModSource, PackageId } from '../../../../types/ModFiles';
+import { getModLibrary } from '../modLibrary';
 
 export interface State {
     customLists: Record<string, CustomList>;
@@ -26,7 +28,7 @@ const listManagerSlice = createSlice({
     reducers: {
         modifyCustomList(state, action: { payload: CustomList }) {
             const list = action.payload;
-            state.customLists[list.id] = list;
+            state.customLists[list.id] = { ...list, lastModified: Date.now() };
 
             saveToStorage('listManager', 'customLists', state.customLists);
         },
@@ -150,6 +152,58 @@ export const applyCustomModlist = createAsyncThunk(
         } catch (error) {
             console.log(error);
         }
+    },
+);
+
+interface AddModsToSelectedListProps {
+    /** If ommitted or false, will recursively add dependencies of mods as well. */
+    ignoreDependencies?: boolean;
+    startIndex?: number;
+    packageIds: PackageId[];
+}
+
+export const addModsToSelectedList = createAsyncThunk(
+    'listManager/addModsToSelectedList',
+    (props: AddModsToSelectedListProps, { getState, dispatch }) => {
+        const state = getState() as StoreState;
+        const library = getModLibrary(state);
+        const version = getModsConfig(state)?.version?.major || 1.3;
+        const { packageIds, ignoreDependencies } = props;
+        let { startIndex: index } = props;
+        const list = getSelectedList(state);
+        if (!list) throw new Error('No list selected to add mods to');
+
+        const newModList = [...list.mods];
+        const listModIds = new Set(list.mods);
+
+        function internalAdd(packageId: PackageId): void {
+            const mod = library[packageId] as Mod<ModSource> | undefined;
+            if (!mod) console.warn(`Failed to find mod with packageId "${packageId}"`);
+            // recursively adding dependencies
+            if (!ignoreDependencies && mod) {
+                const dependencyIds: Set<PackageId> = new Set(); // unique dependencies only
+                mod.modDependenciesByVersion[version]?.forEach(({ packageId }) => {
+                    dependencyIds.add(packageId.toLowerCase());
+                });
+                mod.modDependencies.forEach(({ packageId }) => dependencyIds.add(packageId.toLowerCase()));
+                dependencyIds.forEach((id) => internalAdd(id));
+            }
+
+            // if mod not in list yet, add it
+            if (!listModIds.has(packageId)) {
+                listModIds.add(packageId);
+                if (index) {
+                    newModList.splice(index, 0, packageId);
+                    index++;
+                } else newModList.push(packageId);
+            }
+        }
+
+        for (const id of packageIds) {
+            internalAdd(id.toLowerCase());
+        }
+
+        dispatch(modifyCustomList({ ...list, mods: newModList }));
     },
 );
 

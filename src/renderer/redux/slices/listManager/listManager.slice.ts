@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { ModsConfig, RimWorldVersion } from '../../../../preload/fileLoading/listLoader';
+import { ModsConfig } from '../../../../preload/fileLoading/listLoader';
 import CustomList from '../../../../types/CustomList';
 import { loadFromStorage, saveToStorage } from '../../storageHelpers';
 import { StoreState } from '../../store';

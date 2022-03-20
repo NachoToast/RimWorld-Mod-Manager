@@ -1,0 +1,19 @@
+span.modRow {
+    background-color: #272727;
+    transition: background-color 0.1s linear, border 0.1s linear;
+    /* padding: 0.5rem; */
+    cursor: pointer;
+    border: solid 5px transparent;
+}
+
+span.modRow:hover {
+    background-color: gray;
+}
+
+span.modRow.draggedOver.Above {
+    border-top: solid 5px aquamarine;
+}
+
+span.modRow.draggedOver.Below {
+    border-bottom: solid 5px aquamarine;
+}

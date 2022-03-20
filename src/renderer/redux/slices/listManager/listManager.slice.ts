@@ -179,6 +179,7 @@ export const addModsToSelectedList = createAsyncThunk(
         function internalAdd(packageId: PackageId): void {
             const mod = library[packageId] as Mod<ModSource> | undefined;
             if (!mod) console.warn(`Failed to find mod with packageId "${packageId}"`);
+
             // recursively adding dependencies
             if (!ignoreDependencies && mod) {
                 const dependencyIds: Set<PackageId> = new Set(); // unique dependencies only
@@ -196,6 +197,21 @@ export const addModsToSelectedList = createAsyncThunk(
                     newModList.splice(index, 0, packageId);
                     index++;
                 } else newModList.push(packageId);
+            } else {
+                // otherwise relocate it
+                const existingIndex = list?.mods.indexOf(packageId.toLowerCase());
+                if (existingIndex === undefined || existingIndex === -1)
+                    console.warn(`${packageId} has index ${existingIndex}`);
+                else {
+                    if (index && !true) {
+                        //
+                    } else {
+                        // no specific index = remove then add to end
+                        console.log(`${packageId} already exists at ${existingIndex} (adding to end)`);
+                        newModList.splice(existingIndex, 1);
+                        newModList.push(packageId);
+                    }
+                }
             }
         }
 

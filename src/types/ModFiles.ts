@@ -85,7 +85,7 @@ export interface AboutXML {
     steamAppId?: number;
 }
 
-export interface Mod<T extends ModSource> {
+export interface Mod<T extends ModSource = ModSource> {
     name: string;
     authors: string[];
     packageId: PackageId;

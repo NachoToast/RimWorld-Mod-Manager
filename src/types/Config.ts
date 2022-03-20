@@ -1,5 +1,5 @@
 import { RimWorldVersion } from '../preload/fileLoading/listLoader';
-import { FilePath, ModSource, PackageId } from './ModFiles';
+import { FilePath, PackageId } from './ModFiles';
 
 export type GroupingOptions = 'source' | 'none' | 'author' | 'alphabetical';
 export default interface Config {
